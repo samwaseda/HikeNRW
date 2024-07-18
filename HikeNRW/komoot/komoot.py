@@ -13,7 +13,7 @@ def get_komoot_dict(komoot_id):
         "elevation_up": tour.elevation_up,
         "elevation_down": tour.elevation_down,
         "difficulty": tour.difficulty.grade,
-        "total_duration": tour.total_duration,
+        "total_duration": timedelta(seconds=tour.total_duration),
         "distance": tour.distance,
         "gpx": tour.gpx_track.to_xml()
     }

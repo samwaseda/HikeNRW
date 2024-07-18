@@ -1,0 +1,14 @@
+Düsseldorf Hbf → Solingen-Schaberg
+07.07.2024  
+
+S 1
+To Solingen Hbf
+From 10:55 Düsseldorf Hbf, platform 11
+To 11:17 Solingen Hbf, platform 10
+
+RRB S7
+From 11:22 Solingen Hbf, platform 9
+To 11:34 Solingen-Schaberg, platform 2
+
+View journey:
+https://int.bahn.de/en/buchung/start?vbid=abd72ecf%2D8be2%2D44f6%2Db971%2D5764ee27e557

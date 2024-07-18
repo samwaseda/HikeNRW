@@ -4,18 +4,6 @@ import re
 from pandas import DataFrame
 
 
-def remove_time(txt):
-    new_txt = []
-    passed_gl = False
-    for tt in txt.split():
-        if tt == "Gl.":
-            passed_gl = True
-        elif (tt.endswith("h") or tt.endswith("min")) and passed_gl:
-            return " ".join(new_txt)
-        new_txt.append(tt)
-    return " ".join(new_txt)
-
-
 def get_date(file_content):
     content = re.findall("\d\d\.\d\d\.\d{4}", file_content)
     assert len(content) == 1, "Date not identified"
@@ -27,9 +15,10 @@ def get_date(file_content):
 
 
 def get_all_data(file_content):
+    date = get_date(file_content)
     def get_train_station(line):
-        station = re.findall("\d{1,2}:\d\d (.*),", line)
-        assert len(station) == 1, station
+        station = re.findall(r"\d{1,2}:\d\d (.*?)(?:,|$)", line)
+        assert len(station) == 1, str(station) + line
         return station[0]
 
     def get_platform(line):
@@ -39,9 +28,10 @@ def get_all_data(file_content):
         assert len(pf) == 1
         return pf[0]
 
-    def get_time(line):
+    def get_time(line, day=date):
         t = re.findall("(\d{1,2}:\d\d)", line)
-        return t[0]
+        return datetime.strptime(day.strftime(f"%Y/%m/%d {t[0]}"), "%Y/%m/%d %H:%M")
+
     all_data = defaultdict(list)
     for chunk in file_content.split("\n\n")[1:-1]:
         content = chunk.split("\n")
@@ -60,15 +50,6 @@ def get_all_data(file_content):
 
 
 class Bahn:
-    @property
-    def content(self):
-        content = self.file_content.split("\n\n")[1:-1]
-        all_stops = []
-        for c in content:
-            all_stops.extend(re.findall("\d\d:\d\d (.*),", c))
-        assert len(all_stops) % 2 == 0, \
-            "Arr. and Dep. not correctly detected {}".format(all_stops)
-        return all_stops
 
     @property
     def container(self):

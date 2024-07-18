@@ -1,0 +1,15 @@
+Airport Terminal 1, Weeze → Düsseldorf Hbf
+04.04.2024  
+
+Bus 73
+To Bahnhof, Kevelaer
+From 21:25 Airport Terminal 1, Weeze
+To 21:43 Bahnhof, Kevelaer
+
+RRB RE10 (75477)
+To Düsseldorf Hbf
+From 21:51 Kevelaer, platform 1
+To 22:53 Düsseldorf Hbf, platform 5
+
+View journey:
+https://int.bahn.de/en/buchung/start?vbid=71ec4ac1%2Dcc00%2D4dc9%2Da25b%2Dd96f7c785ad4
