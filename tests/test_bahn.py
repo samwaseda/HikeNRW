@@ -1,6 +1,6 @@
 import glob
 import unittest
-from HikeNRW.HikeNRW.bahn import get_date, get_all_data
+from HikeNRW.HikeNRW.bahn import get_date, get_all_data, Bahn
 from datetime import datetime, timedelta
 
 
@@ -29,6 +29,11 @@ class TestBahn(unittest.TestCase):
                 self.assertFalse("platform" in station)
             for dp, ar in zip(results["dep_time"], results["arr_time"]):
                 self.assertLess(dp, ar)
+            bahn = Bahn(results).get_results()
+            self.assertLess(bahn["meeting_time"], results["dep_time"].iloc[0])
+            self.assertLess(bahn["meeting_time"], bahn["starting_time"])
+            self.assertLess(bahn["starting_time"], bahn["arrival_time"])
+            self.assertEqual(len(bahn["train_schedule"].split("\n")), 2 * len(results))
 
 
 if __name__ == '__main__':

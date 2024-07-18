@@ -17,7 +17,7 @@ def get_date(file_content):
 def get_all_data(file_content):
     date = get_date(file_content)
     def get_train_station(line):
-        station = re.findall(r"\d{1,2}:\d\d (.*?)(?:,|$)", line)
+        station = re.findall(r"\d{1,2}:\d\d (.*?)(?:, platform|$)", line)
         assert len(station) == 1, str(station) + line
         return station[0]
 
@@ -46,33 +46,41 @@ def get_all_data(file_content):
         }
         for k, v in data.items():
             all_data[k].append(v)
-    return all_data
+    return DataFrame(all_data)
 
 
 class Bahn:
+    def __init__(self, all_data):
+        self.all_data = all_data
 
     @property
     def container(self):
         container = []
         for index, row in DataFrame(self.all_data).iterrows():
-            container.append(f"Dep: {row['dep_time']} {row['dep_station']} platform {row['dep_platform']} {row['train']}")
-            container.append(f"Arr: {row['arr_time']} {row['arr_station']} platform {row['arr_platform']}")
+            container.append(
+                f"Dep: {row['dep_time'].strftime('%H:%M')} {row['dep_station']} platform {row['dep_platform']} {row['train']}"
+            )
+            container.append(f"Arr: {row['arr_time'].strftime('%H:%M')} {row['arr_station']} platform {row['arr_platform']}")
         return container
 
     @property
     def starting_time(self):
-        value = [int(dd) for dd in self.all_data["dep_time"][0].split(":")]
-        return self.date + timedelta(hours=value[0], minutes=value[1])
+        return self.all_data["dep_time"].iloc[0]
 
     @property
     def arrival_time(self):
-        value = [int(dd) for dd in self.all_data["arr_time"][-1].split(":")]
-        return self.date + timedelta(hours=value[0], minutes=value[1])
+        return self.all_data["arr_time"].iloc[-1]
 
     @property
     def meeting_time(self):
-        zeit = self.starting_time - timedelta(minutes=15)
-        return self.date + timedelta(hours=zeit.hour, minutes=zeit.minute // 15 * 15)
+        d = self.starting_time - timedelta(minutes=5)
+        return datetime(
+            year=d.year,
+            month=d.month,
+            day=d.day,
+            hour=d.hour,
+            minute=(d.minute // 15) * 15
+        )
 
     @property
     def meeting_point(self):
@@ -84,3 +92,11 @@ class Bahn:
         else:
             return '\n'.join(self.container)
 
+    def get_results(self):
+        return {
+            "train_schedule": self.get_schedule(html=False),
+            "meeting_time": self.meeting_time,
+            "arrival_time": self.arrival_time,
+            "starting_time": self.starting_time,
+            "meeting_point": self.meeting_point,
+        }
