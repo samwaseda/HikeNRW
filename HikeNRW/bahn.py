@@ -3,6 +3,8 @@ from collections import defaultdict
 import re
 from pandas import DataFrame
 
+from HikeNRW.HikeNRW.tools import round_time
+
 
 def get_date(file_content):
     content = re.findall("\d\d\.\d\d\.\d{4}", file_content)
@@ -24,7 +26,7 @@ def get_all_data(file_content):
     def get_platform(line):
         pf = re.findall("platform\s*(.*)", line)
         if len(pf) == 0:
-            return "XXX"
+            return "unknown"
         assert len(pf) == 1
         return pf[0]
 
@@ -72,17 +74,6 @@ class Bahn:
         return self.all_data["arr_time"].iloc[-1]
 
     @property
-    def meeting_time(self):
-        d = self.starting_time - timedelta(minutes=5)
-        return datetime(
-            year=d.year,
-            month=d.month,
-            day=d.day,
-            hour=d.hour,
-            minute=(d.minute // 15) * 15
-        )
-
-    @property
     def meeting_point(self):
         return self.all_data["dep_station"][0]
 
@@ -95,7 +86,6 @@ class Bahn:
     def get_results(self):
         return {
             "train_schedule": self.get_schedule(html=False),
-            "meeting_time": self.meeting_time,
             "arrival_time": self.arrival_time,
             "starting_time": self.starting_time,
             "meeting_point": self.meeting_point,
