@@ -1,6 +1,7 @@
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from collections import defaultdict
+from datetime import datetime
 
 with open("BOT_API", "r") as f:
     TELEGRAM_TOKEN = f.read().split("\n")[0]
@@ -59,14 +60,15 @@ def create_feedback(message):
 
 @bot.message_handler(commands=["start"], regexp="start review")
 def get_review(message):
+    group_id = message.text.split("review")[-1]
     questions = get_all_questions()
     for key, content in questions.items():
-        if key not in state[message.chat.id]:
+        if key not in state[message.chat.id + group_id]:
             bot.send_message(
                 message.chat.id,
                 content["Question"],
                 reply_markup=gen_markup(
-                    f"{key}_{message.chat.id}", content["Answers"]
+                    f"{key}_{message.chat.id}_{group_id}", content["Answers"]
                 )
             )
             break
@@ -83,19 +85,18 @@ def gen_markup(key, choices):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
-    key, chat_id, content = call.data.split("_")
-    chat_id = int(chat_id)
-    state[chat_id].append(key)
+    key, chat_id, group_id, content = call.data.split("_")
+    state[chat_id + group_id].append(key)
     print(key, content)
     questions = get_all_questions()
-    if len(questions) == len(state[chat_id]):
+    if len(questions) == len(state[chat_id + group_id]):
         bot.send_message(
-            chat_id,
+            int(chat_id),
             "If you have further feedback, please write it here! Thanks for your time!"
         )
         return
     for key, content in questions.items():
-        if key not in state[chat_id]:
+        if key not in state[chat_id + group_id]:
             bot.send_message(
                 chat_id,
                 content["Question"],
