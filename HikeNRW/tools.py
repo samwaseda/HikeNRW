@@ -1,4 +1,5 @@
 from datetime import datetime
+from difflib import SequenceMatcher
 
 
 def round_time(d, m):
@@ -9,3 +10,7 @@ def round_time(d, m):
         hour=d.hour,
         minute=(d.minute // m) * m
     )
+
+
+def similar(a, b):
+    return SequenceMatcher(None, a, b).ratio()

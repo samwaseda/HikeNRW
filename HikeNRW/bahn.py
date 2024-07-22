@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 import re
 from pandas import DataFrame
+import requests
 
 from HikeNRW.HikeNRW.tools import round_time
 
@@ -90,3 +91,44 @@ class Bahn:
             "starting_time": self.starting_time,
             "meeting_point": self.meeting_point,
         }
+
+
+def get_train_stations(lat, lon, radius=200, tag="train"):
+    if tag == "train":
+        tag = '"public_transport"="station"'
+    else:
+        tag = '"highway"="bus_stop"'
+    # Define the Overpass API URL
+    overpass_url = "http://overpass-api.de/api/interpreter"
+
+    # Define the Overpass QL query
+    overpass_query = f"""
+    [out:json];
+    (
+      node[{tag}](around:{radius},{lat},{lon});
+      way[{tag}](around:{radius},{lat},{lon});
+      relation[{tag}](around:{radius},{lat},{lon});
+    );
+    out center;
+    """
+
+    # Perform the request
+    response = requests.get(overpass_url, params={'data': overpass_query})
+    data = response.json()
+
+    # Parse the result
+    train_stations = []
+    for element in data['elements']:
+        if 'tags' in element:
+            name = element['tags'].get('name', 'Unnamed')
+            if name == "Unnamed":
+                continue
+            lat = element.get('lat', element.get('center', {}).get('lat'))
+            lon = element.get('lon', element.get('center', {}).get('lon'))
+            train_stations.append({
+                'name': name,
+                'lat': lat,
+                'lon': lon
+            })
+
+    return DataFrame(train_stations)
