@@ -1,0 +1,14 @@
+Write a casual entertaining hiking event description (Do not change the format of the train schedule) with:
+Title: $title (needless to put it explicitly in the text)
+Date: $date
+We see each other at $meeting_time at $meeting_point but they are free to join wherever they want
+Train schedule:
+$train_schedule
+Total distance: $total_distance km
+Elevation up: $elevation_up m & down: $elevation_down m
+Total duration according to Komoot: $total_duration
+We will be back at $meeting_point around $return_time (with considerable uncertainty)
+Difficulty: $difficulty (according to Komoot)
+Komoot link: $komoot_link
+Komoot frame: $komoot_frame
+Regardless of the weather, I will NOT cancel the event.

@@ -1,6 +1,7 @@
 from openai import OpenAI
 import os
 from datetime import timedelta
+from string import Template
 
 from HikeNRW.HikeNRW.bahn import get_all_data, Bahn
 from HikeNRW.HikeNRW.komoot.komoot import get_komoot_dict
@@ -13,10 +14,28 @@ def get_description(bahn_message, komoot_message):
     komoot = get_komoot_dict(extract_komoot_id(komoot_message))
     meeting_time = round_time(bahn["starting_time"] - timedelta(minutes=5), 15)
     r_time = bahn["arrival_time"] - bahn["starting_time"] + komoot["total_duration"] + bahn["arrival_time"] + timedelta(hours=1)
+    with open("event_description.txt", "r") as f:
+        event_descrition = Template(f.read())
+
+    return event_desccription.subsitute(
+        title=komoot["name"],
+        date=bahn["starting_time"].strftime("%h %d %Y"),
+        meeting_time=meeting_time.strftime("%H:%M"),
+        meeting_point=bahn["meeting_point"],
+        train_schedule=bahn["train_schedule"],
+        total_distance=round(komoot["distance"] / 100) / 10,
+        elevation_up=round(komoot["elevation_up"]),
+        elevation_down=round(komoot["elevation_down"]),
+        total_duration=":".join(str(komoot["total_duration"]).split(":")[:-1]),
+        return_time=round_time(r_time, 30).strftime("%H:%M"),
+        difficulty=komoot["difficulty"],
+        komoot_link=komoot["url"],
+        komoot_frame=komoot["html"],
+    )
 
     items = [
         "Write a casual entertaining hiking event description (Do not change the format of the train schedule) in HTML with:"
-        "Title: {} (needless to put it explicitly in the text)".format(komoot["name"].replace("2024/07/07", "Hiking")),
+        "Title: {} (needless to put it explicitly in the text)".format(komoot["name"]),
         "Date: {}".format(bahn["starting_time"].strftime("%h %d %Y")),
         "We see each other at {} at {} but they are free to join wherever they want".format(
             meeting_time.strftime("%H:%M"), bahn["meeting_point"]

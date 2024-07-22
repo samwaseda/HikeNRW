@@ -8,7 +8,20 @@ with open("BOT_API", "r") as f:
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
-state = defaultdict(list)
+
+class State:
+    state = defaultdict(list)
+
+    def update_state(self, chat_id, group_id, key):
+        self.state[f"{chat_id}_{group_id}"].append(key)
+
+    def get_key(self, chat_id, group_id):
+        questions = get_all_questions()
+        for key in questions.keys():
+            if key not in self.state[f"{chat_id}_{group_id}"]:
+                return key
+        return None
+
 
 def get_all_questions():
     return {
@@ -41,6 +54,7 @@ def get_all_questions():
             "Answers": ["Too long", "Somewhat long", "Reasonable"]
         }
     }
+
 
 @bot.message_handler(commands=["feedback"])
 def create_feedback(message):
@@ -86,23 +100,21 @@ def gen_markup(key, choices):
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     key, chat_id, group_id, content = call.data.split("_")
-    state[chat_id + group_id].append(key)
+    state.update_state(chat_id, group_id, key)
     print(key, content)
     questions = get_all_questions()
-    if len(questions) == len(state[chat_id + group_id]):
+    item = state.get_key(chat_id, group_id)
+    if item is None:
         bot.send_message(
             int(chat_id),
             "If you have further feedback, please write it here! Thanks for your time!"
         )
         return
-    for key, content in questions.items():
-        if key not in state[chat_id + group_id]:
-            bot.send_message(
-                chat_id,
-                content["Question"],
-                reply_markup=gen_markup(f"{key}_{chat_id}", content["Answers"])
-            )
-            break
+    bot.send_message(
+        chat_id,
+        questions[item]["Question"],
+        reply_markup=gen_markup(f"{key}_{chat_id}", questions[item]["Answers"])
+    )
 
 # @bot.message_handler(func=lambda message: True)
 # def message_handler(message):
