@@ -6,19 +6,26 @@ from string import Template
 from HikeNRW.HikeNRW.bahn import get_all_data, Bahn, get_train_stations
 from HikeNRW.HikeNRW.komoot.komoot import get_komoot_dict
 from HikeNRW.HikeNRW.komoot.url_parser import extract_komoot_id
-from HikeNRW.HikeNRW.tools import round_time
+from HikeNRW.HikeNRW.tools import round_time, similar
 
 
-def get_description(bahn_message, komoot_message):
-    bahn = Bahn(get_all_data(bahn_message)).get_results()
+def get_description(bahn_message, komoot_message, appearance=""):
+    result = {}
+    bahn_all_data = get_all_data(bahn_message)
+    bahn = Bahn(bahn_all_data).get_results()
     komoot = get_komoot_dict(extract_komoot_id(komoot_message))
+    if len(train_stations_df["name"]) == 0:
+        result["warning"] = "It looks like there is no train station nearby"
+    elif max([similar(nn, bahn_all_data["arr_station"].iloc[-1]) for nn in train_stations_df["name"]]) > 0.7:
+        result["warning"] = "It looks like the name of the train station does not match"
     meeting_time = round_time(bahn["starting_time"] - timedelta(minutes=5), 15)
     r_time = bahn["arrival_time"] - bahn["starting_time"] + komoot["total_duration"] + bahn["arrival_time"] + timedelta(hours=1)
     with open("event_description.txt", "r") as f:
         event_description = Template(f.read())
 
-    return event_description.subsitute(
+    result["text"] = event_description.subsitute(
         title=komoot["name"],
+        appearance=appearance,
         date=bahn["starting_time"].strftime("%h %d %Y"),
         meeting_time=meeting_time.strftime("%H:%M"),
         meeting_point=bahn["meeting_point"],
@@ -32,6 +39,7 @@ def get_description(bahn_message, komoot_message):
         komoot_link=komoot["url"],
         komoot_frame=komoot["html"],
     )
+    return result
 
 
 def get_message(description):
@@ -43,15 +51,13 @@ def get_message(description):
         api_key=api_key,
         base_url=base_url
     )
-    with open("markdown.txt", "r") as f:
-        markdown = f.read()
+    with open("event_assistent.txt", "r") as f:
+        assistent = f.read()
     chat_completion = client.chat.completions.create(
             messages=[
-                {"role":"system", "content": "You are a helpful assistant"},
-                {"role": "assistent", "content": markdown},
-                {
-                    "role":"user", "content": description
-                }],
+                {"role": "system", "content": assistent},
+                {"role": "user", "content": description}
+            ],
             model=model,
         )
     return chat_completion.choices[0].message.content

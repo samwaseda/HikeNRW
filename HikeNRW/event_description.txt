@@ -1,4 +1,4 @@
-Write a casual entertaining hiking event description (Do not change the format of the train schedule) for the following event
+Write a casual entertaining hiking event description (Do not change the format of the train schedule) for the following event $appearance
 
 Title: $title (needless to put it explicitly in the text)
 Date: $date
@@ -11,5 +11,6 @@ Total duration according to Komoot: $total_duration
 We will be back at $meeting_point around $return_time (with considerable uncertainty)
 Difficulty: $difficulty (according to Komoot)
 Komoot link: $komoot_link
-Komoot frame: $komoot_frame (output only HTML is asked)
+Komoot frame: $komoot_frame (include only HTML is asked)
+Facebook group: https://www.facebook.com/groups/colognehiking (do not include when Facebook is asked for)
 Regardless of the weather, the event will NOT be cancelled.
