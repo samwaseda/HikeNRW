@@ -6,7 +6,7 @@ from string import Template
 from HikeNRW.HikeNRW.bahn import get_all_data, Bahn, get_train_stations
 from HikeNRW.HikeNRW.komoot.komoot import get_komoot_dict
 from HikeNRW.HikeNRW.komoot.url_parser import extract_komoot_id
-from HikeNRW.HikeNRW.tools import round_time, similar
+from HikeNRW.HikeNRW.tools import round_time, similar, upload_track
 
 
 def get_description(bahn_message, komoot_message, appearance=""):
@@ -14,6 +14,9 @@ def get_description(bahn_message, komoot_message, appearance=""):
     bahn_all_data = get_all_data(bahn_message)
     bahn = Bahn(bahn_all_data).get_results()
     komoot = get_komoot_dict(extract_komoot_id(komoot_message))
+    train_stations_df = get_train_stations(
+        komoot["tour"].start_point.lat, komoot["tour"].start_point.lon
+    )
     if len(train_stations_df["name"]) == 0:
         result["warning"] = "It looks like there is no train station nearby"
     elif max([similar(nn, bahn_all_data["arr_station"].iloc[-1]) for nn in train_stations_df["name"]]) > 0.7:
@@ -22,6 +25,12 @@ def get_description(bahn_message, komoot_message, appearance=""):
     r_time = bahn["arrival_time"] - bahn["starting_time"] + komoot["total_duration"] + bahn["arrival_time"] + timedelta(hours=1)
     with open("event_description.txt", "r") as f:
         event_description = Template(f.read())
+
+    gpx_url = upload_track(
+        komoot["id"],
+        bahn["starting_time"],
+        content=komoot["tour"].gpx_track.to_xml()
+    )
 
     result["text"] = event_description.subsitute(
         title=komoot["name"],
@@ -36,6 +45,7 @@ def get_description(bahn_message, komoot_message, appearance=""):
         total_duration=":".join(str(komoot["total_duration"]).split(":")[:-1]),
         return_time=round_time(r_time, 30).strftime("%H:%M"),
         difficulty=komoot["difficulty"],
+        gpx_file=gpx_url,
         komoot_link=komoot["url"],
         komoot_frame=komoot["html"],
     )
