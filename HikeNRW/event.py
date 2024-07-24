@@ -20,7 +20,7 @@ def get_description(bahn_message, komoot_message, appearance=""):
     )
     if len(train_stations_df["name"]) == 0:
         result["warning"] = "It looks like there is no train station nearby"
-    elif max([similar(nn, bahn_all_data["arr_station"].iloc[-1]) for nn in train_stations_df["name"]]) > 0.7:
+    elif max([similar(nn, bahn_all_data["arr_station"].iloc[-1]) for nn in train_stations_df["name"]]) < 0.7:
         result["warning"] = "It looks like the name of the train station does not match"
     meeting_time = round_time(bahn["starting_time"] - timedelta(minutes=5), 15)
     r_time = bahn["arrival_time"] - bahn["starting_time"] + komoot["total_duration"] + bahn["arrival_time"] + timedelta(hours=1)
@@ -53,13 +53,12 @@ def get_description(bahn_message, komoot_message, appearance=""):
 
 
 def get_message(description):
-    api_key = os.environ["GWDG_LLM_KEY"]
-    base_url = "https://chat-ai.academiccloud.de/v1"
+    print(description)
     model = "meta-llama-3-70b-instruct"
     # Start OpenAI client
     client = OpenAI(
-        api_key=api_key,
-        base_url=base_url
+        api_key=os.environ["GWDG_LLM_KEY"],
+        base_url=os.environ["GWDG_LLM_URL"]
     )
     with open("event_assistent.txt", "r") as f:
         assistent = f.read()
