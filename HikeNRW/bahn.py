@@ -3,7 +3,7 @@ from collections import defaultdict
 import re
 from pandas import DataFrame
 import requests
-from hashlib import SHA256
+from hashlib import sha256
 
 from HikeNRW.HikeNRW.tools import round_time
 
@@ -51,7 +51,7 @@ def get_all_data(file_content):
         for k, v in data.items():
             all_data[k].append(v)
 
-    with open(f"../tests/bahn/{SHA256(file_content.encode()).hexdigest()}.txt", "w") as f:
+    with open(f"../tests/bahn/{sha256(file_content.encode()).hexdigest()}.txt", "w") as f:
         f.write(file_content)
 
     return DataFrame(all_data)

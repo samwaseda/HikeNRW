@@ -13,7 +13,8 @@ def upload(file_content, file_name):
         ssh.connect(
             hostname=os.environ["WEB_HOST"],
             username=os.environ["WEB_USER"],
-            key_filename=os.path.expanduser('~/.ssh/id_rsa')
+            key_filename=os.path.expanduser('~/.ssh/id_rsa'),
+            port="222"
         )
 
         # Use SFTP to transfer the file

@@ -28,12 +28,11 @@ def get_description(bahn_message, komoot_message, appearance=""):
         event_description = Template(f.read())
 
     gpx_url = upload(
-        komoot["id"],
-        bahn["starting_time"],
-        content=komoot["tour"].gpx_track.to_xml()
+        komoot["tour"].gpx_track.to_xml(),
+        bahn["starting_time"].strftime("%Y%m%d") + "_" + komoot["id"]
     )
 
-    result["text"] = event_description.subsitute(
+    result["text"] = event_description.substitute(
         title=komoot["name"],
         appearance=appearance,
         date=bahn["starting_time"].strftime("%h %d %Y"),
