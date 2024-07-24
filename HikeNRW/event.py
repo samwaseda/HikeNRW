@@ -6,7 +6,8 @@ from string import Template
 from HikeNRW.HikeNRW.bahn import get_all_data, Bahn, get_train_stations
 from HikeNRW.HikeNRW.komoot.komoot import get_komoot_dict
 from HikeNRW.HikeNRW.komoot.url_parser import extract_komoot_id
-from HikeNRW.HikeNRW.tools import round_time, similar, upload_track
+from HikeNRW.HikeNRW.tools import round_time, similar
+from HikeNRW.HikeNRW.upload_gpx import upload
 
 
 def get_description(bahn_message, komoot_message, appearance=""):
@@ -26,7 +27,7 @@ def get_description(bahn_message, komoot_message, appearance=""):
     with open("event_description.txt", "r") as f:
         event_description = Template(f.read())
 
-    gpx_url = upload_track(
+    gpx_url = upload(
         komoot["id"],
         bahn["starting_time"],
         content=komoot["tour"].gpx_track.to_xml()
