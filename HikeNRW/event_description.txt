@@ -13,5 +13,7 @@ Difficulty: $difficulty (according to Komoot)
 GPX-file link: $gpx_file
 Komoot link: $komoot_link
 Komoot frame: $komoot_frame (include only HTML is asked)
-Facebook group: https://www.facebook.com/groups/colognehiking (do not include when Facebook is asked for)
+Facebook group (called NRW Hiking Group): https://www.facebook.com/groups/colognehiking (exclude when Facebook is asked for)
+We create a Telegram group. We share the group link with those who signed up for the event. But anyone can join the event spontaneously, without being in the Telegram group. (exclue when the group initial post is asked for)
+Telegram channel link: https://t.me/hikenrw (exclude when writing a Telegram announcement)
 Regardless of the weather, the event will NOT be cancelled.
