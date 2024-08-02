@@ -2,6 +2,7 @@ from openai import OpenAI
 import os
 from datetime import timedelta
 from string import Template
+import re
 
 from HikeNRW.HikeNRW.bahn import get_all_data, Bahn, get_train_stations
 from HikeNRW.HikeNRW.komoot.komoot import get_komoot_dict
@@ -10,7 +11,7 @@ from HikeNRW.HikeNRW.tools import round_time, similar
 from HikeNRW.HikeNRW.upload_gpx import upload
 
 
-def get_description(bahn_message, komoot_message, appearance=""):
+def get_description(bahn_message, komoot_message, tag, comment=None):
     result = {}
     bahn_all_data = get_all_data(bahn_message)
     bahn = Bahn(bahn_all_data).get_results()
@@ -33,9 +34,9 @@ def get_description(bahn_message, komoot_message, appearance=""):
     )
 
     result["text"] = event_description.substitute(
+        tag=f"for {tag}",
         title=komoot["name"],
-        appearance=appearance,
-        date=bahn["starting_time"].strftime("%h %d %Y"),
+        date=bahn["starting_time"].strftime("%h %d %Y %A"),
         meeting_time=meeting_time.strftime("%H:%M"),
         meeting_point=bahn["meeting_point"],
         train_schedule=bahn["train_schedule"],
@@ -49,7 +50,18 @@ def get_description(bahn_message, komoot_message, appearance=""):
         komoot_link=komoot["url"],
         komoot_frame=komoot["html"],
     )
+    result["text"] = parse(result["text"], tag)
+    if comment is not None:
+        result["text"] += comment
     return result
+
+
+def parse(content, tag):
+    content = re.sub(rf"<Not for (?!{tag}\b)[^>]+>\s*", "", content)
+    content = re.sub(f"<For {tag}>\s*", "", content)
+    pattern = re.compile(r"<[^>]+>")
+    content = "\n".join([line for line in content.split("\n")if not pattern.search(line)])
+    return content
 
 
 def get_message(description):
