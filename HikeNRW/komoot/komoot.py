@@ -29,4 +29,3 @@ def get_komoot_dict(komoot_id):
         "html": get_html(tour.id),
         "tour": tour,
     }
-
