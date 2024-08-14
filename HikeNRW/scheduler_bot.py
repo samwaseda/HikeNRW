@@ -60,6 +60,7 @@ def train_handler(message):
     initialize_data_dict()
     data_dict[message.chat.id]["train"] = message.text
     bot.send_message(message.chat.id, "Got a train schedule")
+    print("Got a train schedule: ", message.text, " from ", message.from_user.first_name)
     send_message(data_dict[message.chat.id], bot, message)
 
 
@@ -68,6 +69,7 @@ def komoot_hander(message):
     initialize_data_dict()
     data_dict[message.chat.id]["komoot"] = message.text
     bot.send_message(message.chat.id, "Got a Komoot link")
+    print("Got a Komoot link: ", message.text, " from ", message.from_user.first_name)
     send_message(data_dict[message.chat.id], bot, message)
 
 
@@ -75,6 +77,7 @@ def komoot_hander(message):
 def comment_handler(message):
     initialize_data_dict()
     data_dict[message.chat.id]["comment"] = message.text
+    print("Got a message: ", message.text, " from ", message.from_user.first_name)
     bot.send_message(message.chat.id, f"Got a comment: {message.text}")
 
 
