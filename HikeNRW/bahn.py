@@ -21,18 +21,12 @@ def get_date(file_content):
 def get_all_data(file_content):
     date = get_date(file_content)
     def get_train_station(line):
-        for term in ["platform", "Gleis"]:
-            station = re.findall(r"\d{1,2}:\d\d (.*?)(?:, " + term + "|$)", line)
-            if len(station) == 1:
-                break
+        station = re.findall(r"\d{1,2}:\d\d (.*?)(?:, platform|$)", line)
         assert len(station) == 1, str(station) + line
         return station[0]
 
     def get_platform(line):
-        for term in ["platform", "Gleis"]:
-            pf = re.findall(term + "\s*(.*)", line)
-            if len(pf) == 1:
-                break
+        pf = re.findall(term + "\s*(.*)", line)
         if len(pf) == 0:
             return "unknown"
         assert len(pf) == 1
@@ -44,7 +38,7 @@ def get_all_data(file_content):
 
     all_data = defaultdict(list)
     for chunk in file_content.split("\n\n")[1:-1]:
-        content = chunk.split("\n")
+        content = chunk.replace(" Gleis ", " platform ").split("\n")
         data = {
             "dep_station": get_train_station(content[-2]),
             "arr_station": get_train_station(content[-1]),
