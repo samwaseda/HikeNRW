@@ -12,7 +12,7 @@ from HikeNRW.HikeNRW.upload_gpx import upload
 
 
 def extract_komoot_url(text):
-    matches = re.findall(r'https?://(?:www\.)?komoot\[^\s]*', text)
+    matches = re.findall(r'https?://(?:www\.)?komoot[^\s]*', text)
     if len(matches) == 0:
         raise ValueError("No komoot link found")
     return matches[0]
