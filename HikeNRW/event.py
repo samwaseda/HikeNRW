@@ -26,7 +26,7 @@ def get_description(bahn_message, komoot_message, tag, comment=None):
     meeting_time = round_time(bahn["starting_time"] - timedelta(minutes=5), 15)
     r_time = bahn["arrival_time"] - bahn["starting_time"] + komoot["total_duration"] + bahn["arrival_time"] + timedelta(hours=1)
     with open("event_description.txt", "r") as f:
-        event_description = Template(f.read())
+        event_description = Template(parse(f.read(), tag))
 
     gpx_url = upload(
         komoot["tour"].gpx_track.to_xml(),
@@ -50,7 +50,6 @@ def get_description(bahn_message, komoot_message, tag, comment=None):
         komoot_link=komoot["url"],
         komoot_frame=komoot["html"],
     )
-    result["text"] = parse(result["text"], tag)
     if comment is not None:
         result["text"] += comment
     return result

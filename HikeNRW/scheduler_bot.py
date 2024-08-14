@@ -2,10 +2,10 @@
 import telebot
 from HikeNRW.HikeNRW.event import get_description, get_message
 from datetime import datetime, timedelta
+from collections import defaultdict
 
-
-data_dict = {}
 last_communication = datetime.now()
+data_dict = defaultdict(dict)
 
 with open("BOT_API", "r") as f:
     TELEGRAM_TOKEN = f.read().split("\n")[0]
@@ -13,16 +13,17 @@ with open("BOT_API", "r") as f:
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 
-def check_last_communication():
+def initialize_data_dict(force=False):
     global last_communication, data_dict
-    if datetime.now() - last_communication > timedelta(minutes=15):
-        data_dict = {}
+    if datetime.now() - last_communication > timedelta(minutes=15) or force:
+        data_dict = defaultdict(dict)
     last_communication = datetime.now()
 
 
 def send_message(data_dict, bot, message):
+    global last_communication
     if "train" in data_dict and "komoot" in data_dict:
-        for tag in ["html", "telegram announcement", "telegram group", "Facebook event"]:
+        for tag in ["Facebook event", "telegram announcement", "telegram group"]:
             try:
                 bot.send_message(message.chat.id, f"Creating text for {tag}")
                 description = get_description(
@@ -33,6 +34,7 @@ def send_message(data_dict, bot, message):
                 )
                 if "warning" in description:
                     bot.send_message(message.chat.id, description["warning"])
+                print(description["text"])
                 m = get_message(description["text"])
                 print(m)
                 bot.send_message(message.chat.id, m)
@@ -40,26 +42,32 @@ def send_message(data_dict, bot, message):
                 bot.send_message(message.chat.id, str(e))
 
 
+@bot.message_handler(commands=['start', 'clear'])
+def send_welcome(message):
+    initialize_data_dict()
+    bot.reply_to(message, "Ready to receive data")
+
+
 @bot.message_handler(regexp="int.bahn.de")
 def train_handler(message):
-    check_last_communication()
-    data_dict["train"] = message.text
+    initialize_data_dict()
+    data_dict[message.chat.id]["train"] = message.text
     bot.send_message(message.chat.id, "Got a train schedule")
-    send_message(data_dict, bot, message)
+    send_message(data_dict[message.chat.id], bot, message)
 
 
 @bot.message_handler(regexp=r'\b\d{9,11}\b')
 def komoot_hander(message):
-    check_last_communication()
-    data_dict["komoot"] = message.text
+    initialize_data_dict()
+    data_dict[message.chat.id]["komoot"] = message.text
     bot.send_message(message.chat.id, "Got a Komoot link")
-    send_message(data_dict, bot, message)
+    send_message(data_dict[message.chat.id], bot, message)
 
 
 @bot.message_handler(func=lambda call: True)
 def comment_handler(message):
-    check_last_communication()
-    data_dict["comment"] = message.text
+    initialize_data_dict()
+    data_dict[message.chat.id]["comment"] = message.text
     bot.send_message(message.chat.id, f"Got a comment: {message.text}")
 
 
