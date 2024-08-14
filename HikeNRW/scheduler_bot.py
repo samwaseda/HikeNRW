@@ -55,6 +55,15 @@ def send_welcome(message):
     bot.reply_to(message, "Ready to receive data")
 
 
+@bot.message_handler(regexp="www.bahn.de")
+def train_handler_german(message):
+    initialize_data_dict()
+    data_dict[message.chat.id]["train"] = message.text
+    bot.send_message(message.chat.id, "Got a train schedule")
+    print("Got a train schedule: ", message.text, " from ", message.from_user.first_name)
+    send_message(data_dict[message.chat.id], bot, message)
+
+
 @bot.message_handler(regexp="int.bahn.de")
 def train_handler(message):
     initialize_data_dict()
