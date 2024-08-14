@@ -26,7 +26,7 @@ def get_all_data(file_content):
         return station[0]
 
     def get_platform(line):
-        pf = re.findall(term + "\s*(.*)", line)
+        pf = re.findall("platform\s*(.*)", line)
         if len(pf) == 0:
             return "unknown"
         assert len(pf) == 1
