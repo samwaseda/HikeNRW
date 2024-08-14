@@ -23,6 +23,9 @@ def initialize_data_dict(force=False):
 def send_message(data_dict, bot, message):
     global last_communication
     if "train" in data_dict and "komoot" in data_dict:
+        with open("bot.log", "a") as f:
+            f.write("Train schedule:\n" + data_dict["train"] + "\n")
+            f.write("Komoot:\n" + data_dict["komoot"] + "\n")
         for tag in ["Facebook event", "telegram announcement", "telegram group"]:
             try:
                 bot.send_message(message.chat.id, f"Creating text for {tag}")
@@ -34,8 +37,12 @@ def send_message(data_dict, bot, message):
                 )
                 if "warning" in description:
                     bot.send_message(message.chat.id, description["warning"])
+                with open("bot.log", "a") as f:
+                    f.write("Input:\n" + description["text"] + "\n")
                 print(description["text"])
                 m = get_message(description["text"])
+                with open("bot.log", "a") as f:
+                    f.write("Output:\n" + m + "\n")
                 print(m)
                 bot.send_message(message.chat.id, m)
             except Exception as e:
