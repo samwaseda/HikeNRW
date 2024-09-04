@@ -47,6 +47,14 @@ def send_message(data_dict, bot, message):
                 bot.send_message(message.chat.id, m)
             except Exception as e:
                 bot.send_message(message.chat.id, str(e))
+        description = get_description(
+            data_dict["train"],
+            data_dict["komoot"],
+            tag="html",
+            comment=data_dict.get("comment", None)
+        )
+        with open("event.html", "w") as f:
+            f.write(get_message(description["text"]))
 
 
 @bot.message_handler(commands=['start', 'clear'])
