@@ -47,6 +47,12 @@ def send_message(data_dict, bot, message):
                 bot.send_message(message.chat.id, m)
             except Exception as e:
                 bot.send_message(message.chat.id, str(e))
+                bot.send_message(
+                    message.chat.id, "You can use the following text for ChatGPT"
+                )
+                bot.send_message(
+                    message.chat.id, description["text"]
+                )
         description = get_description(
             data_dict["train"],
             data_dict["komoot"],
