@@ -12,6 +12,8 @@ bot = telebot.TeleBot(TELEGRAM_TOKEN)
 state = defaultdict(list)
 message_to_delete = defaultdict(list)
 poll_created = {}
+group_name = {}
+user_feedback = defaultdict(dict)
 
 
 def update_state(state, chat_id, group_id, key):
@@ -53,10 +55,17 @@ def get_all_questions():
             ],
         },
         "train": {
-            "Question": "How was the train ride?",
+            "Question": "How was (the length of) the train/bus ride?",
             "Answers": ["Too long", "Somewhat long", "Reasonable"],
         },
     }
+
+
+def get_group_name(message):
+    try:
+        return bot.get_chat(message.chat.id).title
+    except telebot.apihelper.ApiException as e:
+        bot.reply_to(message, f"Failed to retrieve group name: {e}")
 
 
 @bot.message_handler(commands=["feedback"])
@@ -66,7 +75,8 @@ def create_feedback(message):
     except:
         pass
     link = hex(message.chat.id)[2:]
-    if bot.get_chat_member(message.chat.id, message.from_user.id).status not in ['administrator', 'creator']:
+    status = bot.get_chat_member(message.chat.id, message.from_user.id).status
+    if status not in ['administrator', 'creator']:
         bot.send_message(
             message.chat.id,
             "Sorry, only the organizer can create a feedback link!",
@@ -84,6 +94,7 @@ def create_feedback(message):
         ),
     )
     poll_created[link] = datetime.now()
+    group_name[link] = get_group_name(message)
 
 
 @bot.message_handler(commands=["start"], regexp="start review")
@@ -120,9 +131,18 @@ def get_reaction(state, chat_id, group_id):
     if item is None:
         bot.send_message(
             int(chat_id),
-            "If you have further feedback, please write it here! Thanks for your time!",
+            (
+                "Here's a summary of your feedback:\n\n"
+                f"Group: {group_name[group_id]}\n"
+                f"Overall: {user_feedback[f'{chat_id}_{group_id}']['overall']}\n"
+                f"Length: {user_feedback[f'{chat_id}_{group_id}']['length']}\n"
+                f"Elevation: {user_feedback[f'{chat_id}_{group_id}']['elevation']}\n"
+                f"Train/Bus: {user_feedback[f'{chat_id}_{group_id}']['train']}\n\n"
+                "Thank you for your feedback! We hope to see you again soon!\n\n"
+                "If you would like to give more feedback, please simply leave"
+                " comments here!"
+            ),
         )
-        print(message_to_delete[int(chat_id)])
         for msg in message_to_delete[int(chat_id)]:
             bot.delete_message(chat_id, msg)
         message_to_delete[int(chat_id)] = []
@@ -141,12 +161,9 @@ def get_reaction(state, chat_id, group_id):
 def callback_query(call):
     key, chat_id, group_id, content = call.data.split("_")
     update_state(state, chat_id, group_id, key)
+    user_feedback[f"{chat_id}_{group_id}"][key] = content
     print(key, content)
     get_reaction(state, chat_id, group_id)
 
-
-# @bot.message_handler(func=lambda message: True)
-# def message_handler(message):
-#     bot.send_message(message.chat.id, "Yes/no?", reply_markup=gen_markup())
 
 bot.infinity_polling()
