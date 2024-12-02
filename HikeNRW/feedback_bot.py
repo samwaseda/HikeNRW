@@ -74,7 +74,7 @@ def create_feedback(message):
             " if you have time click on the link below to give us your"
             " feedback! It is fully anonymous! The link is valid for"
             " 48 hours.\n\n"
-            f"https://t.me/HikeNRWBot?start=review{link}"
+            f"https://t.me/hikenrwchatbot?start=review{link}"
         ),
     )
     poll_created[link] = datetime.now()
