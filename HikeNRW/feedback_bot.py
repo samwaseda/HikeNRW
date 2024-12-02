@@ -66,6 +66,12 @@ def create_feedback(message):
     except:
         pass
     link = hex(message.chat.id)[2:]
+    if bot.get_chat_member(message.chat.id, message.from_user.id).status not in ['administrator', 'creator']:
+        bot.send_message(
+            message.chat.id,
+            "Sorry, only the organizer can create a feedback link!",
+        )
+        return
     bot.send_message(
         message.chat.id,
         (
