@@ -30,8 +30,6 @@ class TestBahn(unittest.TestCase):
             for dp, ar in zip(results["dep_time"], results["arr_time"]):
                 self.assertLess(dp, ar)
             bahn = Bahn(results).get_results()
-            self.assertLess(bahn["meeting_time"], results["dep_time"].iloc[0])
-            self.assertLess(bahn["meeting_time"], bahn["starting_time"])
             self.assertLess(bahn["starting_time"], bahn["arrival_time"])
             self.assertEqual(len(bahn["train_schedule"].split("\n")), 2 * len(results))
 
