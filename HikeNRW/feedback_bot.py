@@ -3,7 +3,7 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from collections import defaultdict
 from datetime import datetime, timedelta
 
-with open("BOT_API", "r") as f:
+with open("FEEDBACK_BOT_API", "r") as f:
     TELEGRAM_TOKEN = f.read().split("\n")[0]
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
@@ -69,7 +69,7 @@ def create_feedback(message):
             "Thanks for joining today's hike! We hope you all enjoyed it!\n"
             "We would love to hear from you what you think of today's hike, so"
             " if you have time click on the link below to give us your"
-            " feedback! It is fully anonymous! The link is valid for around"
+            " feedback! It is fully anonymous! The link is valid for"
             " 48 hours.\n\n"
             f"https://t.me/HikeNRWBot?start=review{link}"
         ),
@@ -80,6 +80,8 @@ def create_feedback(message):
 @bot.message_handler(commands=["start"], regexp="start review")
 def get_review(message):
     group_id = message.text.split("review")[-1]
+    if group_id not in poll_created:
+        return
     bot.delete_message(message.chat.id, message.message_id)
     get_reaction(state, message.chat.id, group_id)
 
@@ -95,23 +97,26 @@ def gen_markup(key, choices):
     return markup
 
 
-def check_timelimit(group_id):
-    if group_id not in poll_created:
-        return True
-    return datetime.now() - poll_created[group_id] > timedelta(days=2)
-
-
 def get_reaction(state, chat_id, group_id):
     questions = get_all_questions()
     item = get_key(state, chat_id, group_id)
-    if item is None or check_timelimit(group_id):
+    if datetime.now() - poll_created[group_id] > timedelta(days=2) or group_id not in poll_created:
+        bot.send_message(
+            int(chat_id),
+            (
+                "It looks like the feedback link has expired. Please contact"
+                " the organizer if you have any feedback! Thanks!"
+            ),
+        )
+    if item is None:
         bot.send_message(
             int(chat_id),
             "If you have further feedback, please write it here! Thanks for your time!",
         )
-        for msg in message_to_delete[chat_id]:
+        print(message_to_delete[int(chat_id)])
+        for msg in message_to_delete[int(chat_id)]:
             bot.delete_message(chat_id, msg)
-        message_to_delete[chat_id] = []
+        message_to_delete[int(chat_id)] = []
         return
     message = bot.send_message(
         chat_id,
@@ -120,7 +125,7 @@ def get_reaction(state, chat_id, group_id):
             f"{item}_{chat_id}_{group_id}", questions[item]["Answers"]
         ),
     )
-    message_to_delete[chat_id].append(message.message_id)
+    message_to_delete[int(chat_id)].append(message.message_id)
 
 
 @bot.callback_query_handler(func=lambda call: True)
