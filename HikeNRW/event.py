@@ -27,7 +27,7 @@ def get_description(bahn_message, komoot_message, tag, comment=None):
     train_stations_df = get_train_stations(
         komoot["tour"].start_point.lat, komoot["tour"].start_point.lon
     )
-    if len(train_stations_df["name"]) == 0:
+    if "name" not in train_stations_df or len(train_stations_df["name"]) == 0:
         result["warning"] = "It looks like there is no train station nearby"
     elif max([similar(nn, bahn_all_data["arr_station"].iloc[-1]) for nn in train_stations_df["name"]]) < 0.7:
         result["warning"] = "It looks like the name of the train station does not match"
