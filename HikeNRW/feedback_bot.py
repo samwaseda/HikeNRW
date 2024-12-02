@@ -61,7 +61,10 @@ def get_all_questions():
 
 @bot.message_handler(commands=["feedback"])
 def create_feedback(message):
-    bot.delete_message(message.chat.id, message.message_id)
+    try:
+        bot.delete_message(message.chat.id, message.message_id)
+    except:
+        pass
     link = hex(message.chat.id)[2:]
     bot.send_message(
         message.chat.id,
