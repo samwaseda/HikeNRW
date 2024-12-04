@@ -2,6 +2,8 @@ import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from collections import defaultdict
 from datetime import datetime, timedelta
+from openai import OpenAI
+import os
 
 with open("FEEDBACK_BOT_API", "r") as f:
     TELEGRAM_TOKEN = f.read().split("\n")[0]
@@ -168,6 +170,8 @@ def callback_query(call):
 
 with open("hiking_guidelines.txt", "r") as f:
     guidelines = f.read()
+
+
 all_comments = defaultdict(list)
 
 
@@ -177,7 +181,7 @@ def answer(message):
         bot.delete_message(message.chat.id, message.message_id)
     except:
         pass
-    text = get_message(guidelines + "/n".join(all_comments[message.chat.id]))
+    text = get_message(description=all_comments)
     bot.send_message(
         message.chat.id, text, reply_to_message_id=message.reply_to_message.message_id
     )
@@ -209,42 +213,51 @@ def remove_message(message):
             print(f"Failed to delete message: {e}")
 
 
-def get_message(description):
-    print(description)
+def get_message(conversation):
+    print(conversation)
+    messages = [
+        {"role": "system", "content": "You are a hiking event assistant."},
+        {
+            "role": "assistant",
+            "content": "This is what the admin previously said:\n\n" + guidelines
+        }
+    ]
+    messages += conversation
     model = "meta-llama-3-70b-instruct"
     # Start OpenAI client
     client = OpenAI(
         api_key=os.environ["GWDG_LLM_KEY"],
         base_url=os.environ["GWDG_LLM_URL"]
     )
-    with open("event_assistent.txt", "r") as f:
-        assistent = f.read()
     chat_completion = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": "You are a hiking event assistant."},
-                {"role": "user", "content": description}
-            ],
-            model=model,
-        )
+        messages=messages,
+        model=model,
+    )
     return chat_completion.choices[0].message.content
 
 
 @bot.message_handler(func=lambda message: message.content_type == 'text')
 def comment_handler(message):
+    remove_message(message)
     user_name = message.from_user.first_name
     is_admin = bot.get_chat_member(
         message.chat.id, message.from_user.id
     ).status in ['administrator', 'creator']
+    is_myself = message.from_user.id == bot.get_me().id
+    if is_myself:
+        role = "assistant"
+    elif is_admin:
+        role = "admin"
+    else:
+        role = "user"
     text = message.text
     if is_admin:
         user_name = user_name + " (Admin)"
     elif len(text) > 100:
         text = text[:100] + "..."
-    current_date_and_time = datetime.now().strftime("%b %d %H:%M")
     all_comments[message.chat.id].append(
-        f"{current_date_and_time} - {user_name}: {text}"
+        {"role": role, "name": user_name, "text": text}
     )
-
 
 
 bot.infinity_polling()
