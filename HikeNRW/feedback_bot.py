@@ -166,15 +166,18 @@ def callback_query(call):
     get_reaction(state, chat_id, group_id)
 
 
+with open("hiking_guidelines.txt", "r") as f:
+    guidelines = f.read()
+all_comments = defaultdict(list)
+
+
 @bot.message_handler(commands=["answer"])
 def answer(message):
     try:
         bot.delete_message(message.chat.id, message.message_id)
     except:
         pass
-    text = "It's not a reply"
-    if message.reply_to_message is not None:
-        text = message.reply_to_message.text
+    text = get_message(guidelines + "/n".join(all_comments[message.chat.id]))
     bot.send_message(
         message.chat.id, text, reply_to_message_id=message.reply_to_message.message_id
     )
@@ -195,7 +198,7 @@ def greet_new_member(message):
             welcome_message_ids[message.chat.id] = sent_message.message_id
 
 
-def handle_chat_member_update(message):
+def remove_message(message):
     chat_id = message.chat.id
     if chat_id in welcome_message_ids:
         try:
@@ -205,6 +208,42 @@ def handle_chat_member_update(message):
         except Exception as e:
             print(f"Failed to delete message: {e}")
 
+
+def get_message(description):
+    print(description)
+    model = "meta-llama-3-70b-instruct"
+    # Start OpenAI client
+    client = OpenAI(
+        api_key=os.environ["GWDG_LLM_KEY"],
+        base_url=os.environ["GWDG_LLM_URL"]
+    )
+    with open("event_assistent.txt", "r") as f:
+        assistent = f.read()
+    chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "You are a hiking event assistant."},
+                {"role": "user", "content": description}
+            ],
+            model=model,
+        )
+    return chat_completion.choices[0].message.content
+
+
+@bot.message_handler(func=lambda message: message.content_type == 'text')
+def comment_handler(message):
+    user_name = message.from_user.first_name
+    is_admin = bot.get_chat_member(
+        message.chat.id, message.from_user.id
+    ).status in ['administrator', 'creator']
+    text = message.text
+    if is_admin:
+        user_name = user_name + " (Admin)"
+    elif len(text) > 100:
+        text = text[:100] + "..."
+    current_date_and_time = datetime.now().strftime("%b %d %H:%M")
+    all_comments[message.chat.id].append(
+        f"{current_date_and_time} - {user_name}: {text}"
+    )
 
 
 
