@@ -181,7 +181,7 @@ def answer(message):
         bot.delete_message(message.chat.id, message.message_id)
     except:
         pass
-    text = get_message(description=all_comments)
+    text = get_message(all_comments[message.chat.id])
     bot.send_message(
         message.chat.id, text, reply_to_message_id=message.reply_to_message.message_id
     )
@@ -214,7 +214,6 @@ def remove_message(message):
 
 
 def get_message(conversation):
-    print(conversation)
     messages = [
         {"role": "system", "content": "You are a hiking event assistant."},
         {
@@ -223,6 +222,7 @@ def get_message(conversation):
         }
     ]
     messages += conversation
+    print(messages)
     model = "meta-llama-3-70b-instruct"
     # Start OpenAI client
     client = OpenAI(
@@ -236,7 +236,9 @@ def get_message(conversation):
     return chat_completion.choices[0].message.content
 
 
-@bot.message_handler(func=lambda message: message.content_type == 'text')
+@bot.message_handler(
+    func=lambda msg: msg.content_type == 'text' and not msg.text.startswith('/')
+)
 def comment_handler(message):
     remove_message(message)
     user_name = message.from_user.first_name
@@ -246,13 +248,11 @@ def comment_handler(message):
     is_myself = message.from_user.id == bot.get_me().id
     if is_myself:
         role = "assistant"
-    elif is_admin:
-        role = "admin"
     else:
         role = "user"
     text = message.text
     if is_admin:
-        user_name = user_name + " (Admin)"
+        user_name = user_name + " (admin)"
     elif len(text) > 100:
         text = text[:100] + "..."
     all_comments[message.chat.id].append(
