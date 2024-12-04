@@ -166,4 +166,46 @@ def callback_query(call):
     get_reaction(state, chat_id, group_id)
 
 
+@bot.message_handler(commands=["answer"])
+def answer(message):
+    try:
+        bot.delete_message(message.chat.id, message.message_id)
+    except:
+        pass
+    text = "It's not a reply"
+    if message.reply_to_message is not None:
+        text = message.reply_to_message.text
+    bot.send_message(
+        message.chat.id, text, reply_to_message_id=message.reply_to_message.message_id
+    )
+
+
+welcome_message_ids = {}
+
+@bot.message_handler(content_types=["new_chat_members"])
+def greet_new_member(message):
+    for member in message.new_chat_members:
+        if member.is_bot and member.id == bot.get_me().id:
+            # The bot has been added to the group
+            sent_message = bot.send_message(
+                message.chat.id,
+                "Don't forget to add me as an admin for you to use all functionalities!",
+            )
+            # Store the message ID for later deletion
+            welcome_message_ids[message.chat.id] = sent_message.message_id
+
+
+def handle_chat_member_update(message):
+    chat_id = message.chat.id
+    if chat_id in welcome_message_ids:
+        try:
+            bot.delete_message(chat_id, welcome_message_ids[chat_id])
+            # Remove the entry from the dictionary
+            del welcome_message_ids[chat_id]
+        except Exception as e:
+            print(f"Failed to delete message: {e}")
+
+
+
+
 bot.infinity_polling()
