@@ -9,6 +9,7 @@ from HikeNRW.HikeNRW.komoot.komoot import get_komoot_dict
 from HikeNRW.HikeNRW.komoot.url_parser import extract_komoot_id
 from HikeNRW.HikeNRW.tools import round_time, similar
 from HikeNRW.HikeNRW.upload_gpx import upload
+from HikeNRW.HikeNRW.chatbot import get_message
 
 
 def extract_komoot_url(text):
@@ -72,20 +73,11 @@ def parse(content, tag):
 
 
 def get_message(description):
-    print(description)
-    model = "meta-llama-3-70b-instruct"
     # Start OpenAI client
-    client = OpenAI(
-        api_key=os.environ["GWDG_LLM_KEY"],
-        base_url=os.environ["GWDG_LLM_URL"]
-    )
     with open("event_assistent.txt", "r") as f:
         assistent = f.read()
-    chat_completion = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": assistent},
-                {"role": "user", "content": description}
-            ],
-            model=model,
-        )
-    return chat_completion.choices[0].message.content
+    message = [
+        {"role": "system", "content": assistent},
+        {"role": "user", "content": description}
+    ]
+    return get_message(message)
