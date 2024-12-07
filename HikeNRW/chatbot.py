@@ -2,7 +2,7 @@ from openai import OpenAI
 import os
 
 
-def get_message(messages, model="meta-llama-3-70b-instruct"):
+def get_message(messages, model="meta-llama-3.1-70b-instruct"):
     print(messages)
     # Start OpenAI client
     client = OpenAI(

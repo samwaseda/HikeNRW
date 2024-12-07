@@ -4,6 +4,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from openai import OpenAI
 import os
+from chatbot import get_message
 
 with open("FEEDBACK_BOT_API", "r") as f:
     TELEGRAM_TOKEN = f.read().split("\n")[0]
@@ -168,11 +169,7 @@ def callback_query(call):
     get_reaction(state, chat_id, group_id)
 
 
-with open("hiking_guidelines.txt", "r") as f:
-    guidelines = f.read()
-
-
-all_comments = defaultdict(list)
+all_comments = defaultdict(dict)
 
 
 @bot.message_handler(commands=["answer"])
@@ -181,7 +178,19 @@ def answer(message):
         bot.delete_message(message.chat.id, message.message_id)
     except:
         pass
-    text = get_message(all_comments[message.chat.id])
+    message = [{
+        "role": "system",
+        "content": "You are helpful assistant of a hiking group and observes its chatroom"
+    }]
+    for key, value in all_comments[message.chat.id]:
+        if message.reply_to_message.message_id == key:
+            message += [value.pop("name")]
+            break
+        else:
+            message += [value]
+    else:
+        raise ValueError("Message not found")
+    text = get_message(message)
     bot.send_message(
         message.chat.id, text, reply_to_message_id=message.reply_to_message.message_id
     )
@@ -213,29 +222,6 @@ def remove_message(message):
             print(f"Failed to delete message: {e}")
 
 
-def get_message(conversation):
-    messages = [
-        {"role": "system", "content": "You are a hiking event assistant."},
-        {
-            "role": "assistant",
-            "content": "This is what the admin previously said:\n\n" + guidelines
-        }
-    ]
-    messages += conversation
-    print(messages)
-    model = "meta-llama-3-70b-instruct"
-    # Start OpenAI client
-    client = OpenAI(
-        api_key=os.environ["GWDG_LLM_KEY"],
-        base_url=os.environ["GWDG_LLM_URL"]
-    )
-    chat_completion = client.chat.completions.create(
-        messages=messages,
-        model=model,
-    )
-    return chat_completion.choices[0].message.content
-
-
 @bot.message_handler(
     func=lambda msg: msg.content_type == 'text' and not msg.text.startswith('/')
 )
@@ -255,9 +241,10 @@ def comment_handler(message):
         user_name = user_name + " (admin)"
     elif len(text) > 100:
         text = text[:100] + "..."
-    all_comments[message.chat.id].append(
-        {"role": role, "name": user_name, "text": text}
-    )
+    message_id = message.message_id
+    all_comments[message.chat.id][message_id] = {
+        "role": role, "name": user_name, "text": text
+    }
 
 
 bot.infinity_polling()
