@@ -9,7 +9,7 @@ from HikeNRW.HikeNRW.komoot.komoot import get_komoot_dict
 from HikeNRW.HikeNRW.komoot.url_parser import extract_komoot_id
 from HikeNRW.HikeNRW.tools import round_time, similar
 from HikeNRW.HikeNRW.upload_gpx import upload
-from HikeNRW.HikeNRW.chatbot import get_message
+from HikeNRW.HikeNRW.chatbot import get_message as chatbot_get_message
 
 
 def extract_komoot_url(text):
@@ -80,4 +80,4 @@ def get_message(description):
         {"role": "system", "content": assistent},
         {"role": "user", "content": description}
     ]
-    return get_message(message)
+    return chatbot_get_message(message)
