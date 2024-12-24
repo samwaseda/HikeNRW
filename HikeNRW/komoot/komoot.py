@@ -28,4 +28,5 @@ def get_komoot_dict(komoot_id):
         "url": f"https://www.komoot.com/de-de/tour/{tour.id}",
         "html": get_html(tour.id),
         "tour": tour,
+        "vector_image": tour.vector_map_image.image_url,
     }
