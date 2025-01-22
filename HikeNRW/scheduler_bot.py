@@ -26,7 +26,7 @@ def send_message(data_dict, bot, message):
         with open("bot.log", "a") as f:
             f.write("Train schedule:\n" + data_dict["train"] + "\n")
             f.write("Komoot:\n" + data_dict["komoot"] + "\n")
-        for tag in ["Facebook event", "telegram announcement", "telegram group"]:
+        for tag in ["telegram announcement", "Facebook event", "telegram group"]:
             try:
                 bot.send_message(message.chat.id, f"Creating text for {tag}")
                 description = get_description(
@@ -53,6 +53,7 @@ def send_message(data_dict, bot, message):
                 bot.send_message(
                     message.chat.id, description["text"]
                 )
+                break
         description = get_description(
             data_dict["train"],
             data_dict["komoot"],
