@@ -1,0 +1,30 @@
+"overall":
+  "Question": "How was the event overall?"
+  "Answers": 
+    - "Very good!"
+    - "Good"
+    - "ok"
+    - "Bad"
+    - "Very bad"
+"length":
+  "Question": "How was the length?"
+  "Answers": 
+    - "Too long"
+    - "Somewhat long"
+    - "Good length"
+    - "Somewhat short"
+    - "Too short"
+"elevation":
+  "Question": "How was the elevation?"
+  "Answers":
+    - "Too hilly"
+    - "Somewhat hilly"
+    - "Good elevation"
+    - "Somewhat flat"
+    - "Too flat"
+"train":
+  "Question": "How was (the length of) the train/bus ride?"
+  "Answers":
+    - "Too long"
+    - "Somewhat long"
+    - "Reasonable"
