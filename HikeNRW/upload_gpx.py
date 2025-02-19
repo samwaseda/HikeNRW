@@ -10,10 +10,14 @@ def upload(file_content, file_name):
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         # Connect to the server
+        folder = '~/.ssh/id_rsa'
+        # check folder exists and if not, use ~/.ssh/id_ed25519
+        if not os.path.exists(os.path.expanduser(folder)):
+            folder = '~/.ssh/id_ed22519'
         ssh.connect(
             hostname=os.environ["WEB_HOST"],
             username=os.environ["WEB_USER"],
-            key_filename=os.path.expanduser('~/.ssh/id_rsa'),
+            key_filename=os.path.expanduser(folder),
             port=222
         )
 
