@@ -1,7 +1,9 @@
 from string import Template
 import subprocess
 
-def get_commande(output="output.jpg", image_sorting="$(ls *.jpeg | gshuf)", back_ground="black", geometry=[-30, -30], size=[1024, 1024]):
+def get_commande(
+    output="output.jpg", image_sorting="$(ls *.jpeg | gshuf)", back_ground="black", geometry=[-30, -30], size=[1024, 1024]
+):
     geometry = "".join(map(str, geometry))
     size = "x".join(map(str, size))
     command = Template("montage $image_sorting -auto-orient -background $back_ground +polaroid -shadow -geometry $geometry miff:- | convert miff:- -resize $size $output")
