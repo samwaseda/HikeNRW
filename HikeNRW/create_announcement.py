@@ -169,13 +169,17 @@ def get_image(komoot_dict, date, meeting_point, distance):
     for image, position in get_banner_images(map_img, images):
         img.paste(image, position)
     img.paste(map_img, (0, height + 2 * buffer))
-    text_size = get_text_size(title, font_size=100)
+    font_size = 100
+    text_size = get_text_size(title, font_size=font_size)
+    if text_size[0] > img.width:
+        font_size = int(font_size * img.width / text_size[0])
+        text_size = get_text_size(title, font_size=font_size)
     displacement = (10, buffer // 2 - text_size[1] // 2)
     draw_text(
         title,
         img,
         position=displacement,
-        font_size=100,
+        font_size=font_size,
         most_common_color=most_common_color
     )
     imgl = ImageDraw.Draw(img)
