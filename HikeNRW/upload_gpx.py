@@ -6,7 +6,7 @@ import tempfile
 def upload(file_content, file_name):
     remote_file_path = f"public_html/HIKING/{file_name}.gpx"  # Path where you want to place the file on the remote server
     # Initialize the SSH client
-    ftp = None
+    sftp = None
     try:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -38,7 +38,7 @@ def upload(file_content, file_name):
 
     finally:
         # Close the SFTP session and SSH connection
-        if sft is None:
+        if sftp is None:
             raise Exception("No SFTP connection")
         sftp.close()
         ssh.close()
