@@ -64,8 +64,9 @@ def get_most_common_color(map_img):
     return tuple(colors[counts.argmax()])
 
 
-def get_banner_images(map_img, images):
-    buffer = get_buffer(map_img)
+def get_banner_images(map_img, images, buffer=None):
+    if buffer is None:
+        buffer = get_buffer(map_img)
     new_images = []
     width, height = map_img.size
     if len(images) == 0:
@@ -160,7 +161,22 @@ def get_buffer(map_img):
     return map_img.width // 2 - map_img.height
 
 
-def get_image(komoot_dict, date, meeting_point, distance):
+def get_topographic_info(distance, elev_up, elev_down):
+    d = round(distance / 100) / 10
+    up = round(elev_up)
+    down = round(elev_down)
+    return f"↔️{d}km\n↗️{up}m\n↘️{down}m"
+
+
+def export_banner_image(komoot_dict):
+    _, map_img, images = get_komoot_images(komoot_dict)
+    img = Image.new("RGB", (map_img.width, map_img.height))
+    for image, position in get_banner_images(map_img, images, buffer=0):
+        img.paste(image, position)
+    return img
+
+
+def get_image(komoot_dict, date, meeting_point):
     title, map_img, images = get_komoot_images(komoot_dict)
     width, height = map_img.size
     most_common_color = get_most_common_color(map_img)
@@ -199,9 +215,14 @@ def get_image(komoot_dict, date, meeting_point, distance):
         height=0.7 * buffer,
         most_common_color=most_common_color
     )
-    size = get_text_size(distance, font_size=40)
+    topo = get_topographic_info(
+        komoot_dict["distance"],
+        komoot_dict["elevation_up"],
+        komoot_dict["elevation_down"]
+    )
+    size = get_text_size(topo, font_size=40)
     write_multiple_lines(
-        distance,
+        topo,
         img,
         position=(img.width // 2 - 50 - size[0], int(1.1 * buffer) + map_img.height),
         font_size=40,
