@@ -10,7 +10,7 @@ from HikeNRW.HikeNRW.tools import round_time
 
 def get_date(file_content):
     content = re.findall("\d\d\.\d\d\.\d{4}", file_content)
-    assert len(content) == 1, "Date not identified"
+    assert len(content) == 1, f"Date not identified {file_content}"
     try:
         return datetime.strptime(content[0], "%d.%m.%Y")
     except ValueError as e:
