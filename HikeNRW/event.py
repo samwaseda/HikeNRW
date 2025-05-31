@@ -10,6 +10,7 @@ from HikeNRW.HikeNRW.komoot.url_parser import extract_komoot_id
 from HikeNRW.HikeNRW.tools import round_time, similar
 from HikeNRW.HikeNRW.upload_gpx import upload
 from HikeNRW.HikeNRW.chatbot import get_message as chatbot_get_message
+from HikeNRW.HikeNRW.create_announcement import get_image, export_banner_image
 
 
 def extract_komoot_url(text):
@@ -36,11 +37,21 @@ def get_description(bahn_message, komoot_message, tag, comment=None):
     r_time = bahn["arrival_time"] - bahn["starting_time"] + komoot["total_duration"] + bahn["arrival_time"] + timedelta(hours=1)
     with open("event_description.txt", "r") as f:
         event_description = Template(parse(f.read(), tag))
-
     gpx_url = upload(
         komoot["tour"].gpx_track.to_xml(),
         bahn["starting_time"].strftime("%Y%m%d") + "_" + komoot["id"]
     )
+
+    img_url = "INSTAGRAM/" + komoot["id"] + ".jpg"
+    get_image(
+        komoot_dict=komoot,
+        date=meeting_time.strftime("%d %h %A %H:%M"),
+        meeting_point=bahn["meeting_point"],
+    ).save(img_url)
+    result["img"] = img_url
+    banner_url = f"INSTAGRAM/banner_{komoot['id']}.jpg"
+    export_banner_image(komoot_dict=komoot).save(banner_url)
+    result["banner"] = banner_url
 
     result["text"] = event_description.substitute(
         tag=f"for {tag}",

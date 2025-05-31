@@ -15,6 +15,7 @@ def get_komoot_dict(komoot_id):
         email=os.environ['komoot_email'],
     )
     tour = connector.get_tour_by_id(komoot_id)
+    tour.vector_map_image.load_image()
     tour.generate_gpx_track(authentication=connector.authentication)
     return {
         "id": komoot_id,
@@ -28,5 +29,6 @@ def get_komoot_dict(komoot_id):
         "url": f"https://www.komoot.com/de-de/tour/{tour.id}",
         "html": get_html(tour.id),
         "tour": tour,
-        "vector_image": tour.vector_map_image.image_url,
+        "vector_image": tour.vector_map_image.image,
+        "links_dict": tour.links_dict,
     }

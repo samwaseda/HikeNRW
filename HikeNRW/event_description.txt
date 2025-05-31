@@ -15,8 +15,8 @@ GPX-file link: $gpx_file
 Komoot link: $komoot_link
 <For html> Komoot frame: $komoot_frame
 NRW Hiking Group (Facebook group): https://www.facebook.com/groups/colognehiking
-<Not for telegram group> We create a Telegram group. We share the group link with those who signed up for the event. But anyone can join the event spontaneously, without being in the Telegram group.
-<For telegram announcement> How to get a Telegram group link: sign up for the event on Meetup or Facebook and wait for a Telegram group link, or leave a message under this announcement.
-<Not for telegram announcement> Telegram channel link: https://t.me/hikenrw
+Instagram: https://www.instagram.com/rambledorf/
+<For telegram announcement> How to get a Telegram group link: sign up for the event on Meetup or Facebook and wait for a Telegram group link, or leave a message under this announcement. There's no need to be in the Telegram group to participate in the event.
+Telegram channel link: https://t.me/hikenrw
 <For telegram group> No need to leave a comment in the Telegram group for pulling out of the event.
 Regardless of the weather, the event will NOT be cancelled.

@@ -1,6 +1,6 @@
 # This example show how to use inline keyboards and process button presses
 import telebot
-from HikeNRW.HikeNRW.event import get_description, get_message
+from HikeNRW.HikeNRW.event import get_description
 from datetime import datetime, timedelta
 from collections import defaultdict
 
@@ -26,42 +26,31 @@ def send_message(data_dict, bot, message):
         with open("bot.log", "a") as f:
             f.write("Train schedule:\n" + data_dict["train"] + "\n")
             f.write("Komoot:\n" + data_dict["komoot"] + "\n")
-        for tag in ["telegram announcement", "Facebook event", "telegram group"]:
-            try:
-                bot.send_message(message.chat.id, f"Creating text for {tag}")
-                description = get_description(
-                    data_dict["train"],
-                    data_dict["komoot"],
-                    tag=tag,
-                    comment=data_dict.get("comment", None)
-                )
-                if "warning" in description:
-                    bot.send_message(message.chat.id, description["warning"])
-                with open("bot.log", "a") as f:
-                    f.write("Input:\n" + description["text"] + "\n")
-                print(description["text"])
-                m = get_message(description["text"])
-                with open("bot.log", "a") as f:
-                    f.write("Output:\n" + m + "\n")
-                print(m)
-                bot.send_message(message.chat.id, m)
-            except Exception as e:
-                bot.send_message(message.chat.id, str(e))
-                bot.send_message(
-                    message.chat.id, "You can use the following text for ChatGPT"
-                )
-                bot.send_message(
-                    message.chat.id, description["text"]
-                )
-                break
-        description = get_description(
-            data_dict["train"],
-            data_dict["komoot"],
-            tag="html",
-            comment=data_dict.get("comment", None)
-        )
-        with open("event.html", "w") as f:
-            f.write(get_message(description["text"]))
+        for tag in ["telegram announcement"]:
+            bot.send_message(message.chat.id, f"Creating text for {tag}")
+            description = get_description(
+                data_dict["train"],
+                data_dict["komoot"],
+                tag=tag,
+                comment=data_dict.get("comment", None)
+            )
+            if "warning" in description:
+                bot.send_message(message.chat.id, description["warning"])
+            with open("bot.log", "a") as f:
+                f.write("Input:\n" + description["text"] + "\n")
+            print(description["text"])
+            bot.send_message(
+                message.chat.id, "You can use the following text for ChatGPT"
+            )
+            bot.send_message(
+                message.chat.id, description["text"]
+            )
+        if "img" in description:
+            with open(description["img"], "rb") as photo:
+                bot.send_photo(message.chat.id, photo)
+        if "banner" in description:
+            with open(description["banner"], "rb") as photo:
+                bot.send_photo(message.chat.id, photo)
 
 
 @bot.message_handler(commands=['start', 'clear'])
