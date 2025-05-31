@@ -7,7 +7,7 @@ import re
 import os
 
 # Assign the path to the fonts from the env variable PATH_TO_FONTS
-PATH_TO_FONTS = os.environ.get("PATH_TO_FONTS", "/usr/share/fonts/opentype/urw-base35")
+PATH_TO_FONTS = os.environ.get("PATH_TO_FONT", "/usr/share/fonts/opentype/urw-base35/")
 
 
 def div(size):
