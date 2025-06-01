@@ -103,7 +103,7 @@ def get_banner_images(map_img, images, buffer=None):
 def get_text_size(
     text,
     font_size=70,
-    font='/usr/share/fonts/opentype/urw-base35/URWGothic-Demi.otf'
+    font=PATH_TO_FONTS + 'URWGothic-Demi.otf'
 ):
     my_font = ImageFont.truetype(font, size=font_size)
     size = []
