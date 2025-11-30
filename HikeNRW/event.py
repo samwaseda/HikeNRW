@@ -8,7 +8,6 @@ from HikeNRW.HikeNRW.komoot.komoot import get_komoot_dict
 from HikeNRW.HikeNRW.komoot.url_parser import extract_komoot_id
 from HikeNRW.HikeNRW.tools import round_time, similar
 from HikeNRW.HikeNRW.upload_gpx import upload
-from HikeNRW.HikeNRW.chatbot import get_message as chatbot_get_message
 from HikeNRW.HikeNRW.create_announcement import get_image, export_banner_image
 
 
@@ -83,14 +82,3 @@ def parse(content, tag):
     pattern = re.compile(r"<[^>]+>")
     content = "\n".join([line for line in content.split("\n")if not pattern.search(line)])
     return content
-
-
-def get_message(description):
-    # Start OpenAI client
-    with open("event_assistent.txt", "r") as f:
-        assistent = f.read()
-    message = [
-        {"role": "system", "content": assistent},
-        {"role": "user", "content": description}
-    ]
-    return chatbot_get_message(message)
