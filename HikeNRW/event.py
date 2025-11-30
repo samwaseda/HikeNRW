@@ -1,4 +1,3 @@
-from openai import OpenAI
 import os
 from datetime import timedelta
 from string import Template
