@@ -4,6 +4,10 @@ import requests
 from io import BytesIO
 import urllib.request
 import re
+import os
+
+# Assign the path to the fonts from the env variable PATH_TO_FONTS
+PATH_TO_FONTS = os.environ.get("PATH_TO_FONT", "/usr/share/fonts/opentype/urw-base35/")
 
 
 def div(size):
@@ -99,7 +103,7 @@ def get_banner_images(map_img, images, buffer=None):
 def get_text_size(
     text,
     font_size=70,
-    font='/usr/share/fonts/opentype/urw-base35/URWGothic-Demi.otf'
+    font=PATH_TO_FONTS + 'URWGothic-Demi.otf'
 ):
     my_font = ImageFont.truetype(font, size=font_size)
     size = []
@@ -120,7 +124,7 @@ def draw_text(
     position,
     most_common_color,
     font_size=70,
-    font='/usr/share/fonts/opentype/urw-base35/URWGothic-Demi.otf'
+    font=PATH_TO_FONTS + 'URWGothic-Demi.otf'
 ):
     img_text = ImageDraw.Draw(img)
     myFont = ImageFont.truetype(font, font_size)
@@ -139,7 +143,7 @@ def write_multiple_lines(
     height,
     most_common_color,
     font_size=70,
-    font='/usr/share/fonts/opentype/urw-base35/URWGothic-Demi.otf'
+    font=PATH_TO_FONTS + 'URWGothic-Demi.otf'
 ):
     buffer = (
         height - font_size * len(text.split("\n"))

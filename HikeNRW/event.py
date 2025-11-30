@@ -41,16 +41,19 @@ def get_description(bahn_message, komoot_message, tag, comment=None):
         bahn["starting_time"].strftime("%Y%m%d") + "_" + komoot["id"]
     )
 
-    img_url = "INSTAGRAM/" + komoot["id"] + ".jpg"
-    get_image(
-        komoot_dict=komoot,
-        date=meeting_time.strftime("%d %h %A %H:%M"),
-        meeting_point=bahn["meeting_point"],
-    ).save(img_url)
-    result["img"] = img_url
-    banner_url = f"INSTAGRAM/banner_{komoot['id']}.jpg"
-    export_banner_image(komoot_dict=komoot).save(banner_url)
-    result["banner"] = banner_url
+    try:
+        img_url = "INSTAGRAM/" + komoot["id"] + ".jpg"
+        get_image(
+            komoot_dict=komoot,
+            date=meeting_time.strftime("%d %h %A %H:%M"),
+            meeting_point=bahn["meeting_point"],
+        ).save(img_url)
+        result["img"] = img_url
+        banner_url = f"INSTAGRAM/banner_{komoot['id']}.jpg"
+        export_banner_image(komoot_dict=komoot).save(banner_url)
+        result["banner"] = banner_url
+    except Exception as e:
+        pass
 
     result["text"] = event_description.substitute(
         tag=f"for {tag}",
