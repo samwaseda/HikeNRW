@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="https://www.komoot.de">
   <metadata>
-    <name>Hagen - Gevelsberg</name>
+    <name>2026/02/01 Hagen - Gevelsberg</name>
     <author>
       <link href="https://www.komoot.de">
         <text>komoot</text>
@@ -10,7 +10,7 @@
     </author>
   </metadata>
   <trk>
-    <name>Hagen - Gevelsberg</name>
+    <name>2026/02/01 Hagen - Gevelsberg</name>
     <trkseg>
       <trkpt lat="51.353761" lon="7.452638">
         <ele>113.646816</ele>
