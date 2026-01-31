@@ -88,6 +88,7 @@ def send_welcome(message):
 
 @bot.message_handler(commands=["trip"])
 def show_trips(message):
+    print(f"User {message.from_user.username} requested trip info.")
     # Return the content of trips.yml as a preview
     trip_dict = {}
     for t in all_trips["trips"]:
@@ -105,6 +106,7 @@ def show_trips(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def trip_details(call):
+    print(f"User {call.from_user.username} requested details for trip {call.data}.")
     trip = get_trip_by_name(call.data)
     if trip is None:
         bot.answer_callback_query(call.id, "Trip not found.")
