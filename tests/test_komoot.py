@@ -11,5 +11,5 @@ class TestTemplate(unittest.TestCase):
         self.assertEqual(result["difficulty"], "difficult")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

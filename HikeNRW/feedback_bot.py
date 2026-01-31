@@ -79,7 +79,7 @@ def create_feedback(message):
         pass
     link = hex(message.chat.id)[2:]
     status = bot.get_chat_member(message.chat.id, message.from_user.id).status
-    if status not in ['administrator', 'creator']:
+    if status not in ["administrator", "creator"]:
         return
     bot.send_message(
         message.chat.id,
@@ -119,7 +119,10 @@ def gen_markup(key, choices):
 def get_reaction(state, chat_id, group_id):
     questions = get_all_questions()
     item = get_key(state, chat_id, group_id)
-    if datetime.now() - poll_created[group_id] > timedelta(days=2) or group_id not in poll_created:
+    if (
+        datetime.now() - poll_created[group_id] > timedelta(days=2)
+        or group_id not in poll_created
+    ):
         bot.send_message(
             int(chat_id),
             (
@@ -174,10 +177,12 @@ def answer(message):
         bot.delete_message(message.chat.id, message.message_id)
     except:
         pass
-    message = [{
-        "role": "system",
-        "content": "You are helpful assistant of a hiking group and observes its chatroom"
-    }]
+    message = [
+        {
+            "role": "system",
+            "content": "You are helpful assistant of a hiking group and observes its chatroom",
+        }
+    ]
     for key, value in all_comments[message.chat.id]:
         if message.reply_to_message.message_id == key:
             message += [value.pop("name")]
@@ -193,6 +198,7 @@ def answer(message):
 
 
 welcome_message_ids = {}
+
 
 @bot.message_handler(content_types=["new_chat_members"])
 def greet_new_member(message):
@@ -219,14 +225,15 @@ def remove_message(message):
 
 
 @bot.message_handler(
-    func=lambda msg: msg.content_type == 'text' and not msg.text.startswith('/')
+    func=lambda msg: msg.content_type == "text" and not msg.text.startswith("/")
 )
 def comment_handler(message):
     remove_message(message)
     user_name = message.from_user.first_name
-    is_admin = bot.get_chat_member(
-        message.chat.id, message.from_user.id
-    ).status in ['administrator', 'creator']
+    is_admin = bot.get_chat_member(message.chat.id, message.from_user.id).status in [
+        "administrator",
+        "creator",
+    ]
     is_myself = message.from_user.id == bot.get_me().id
     if is_myself:
         role = "assistant"
@@ -239,7 +246,9 @@ def comment_handler(message):
         text = text[:100] + "..."
     message_id = message.message_id
     all_comments[message.chat.id][message_id] = {
-        "role": role, "name": user_name, "text": text
+        "role": role,
+        "name": user_name,
+        "text": text,
     }
 
 

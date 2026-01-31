@@ -11,8 +11,8 @@ def get_html(komoot_id):
 
 def get_komoot_dict(komoot_id):
     connector = KomootConnector(
-        password=os.environ['komoot_psw'],
-        email=os.environ['komoot_email'],
+        password=os.environ["komoot_psw"],
+        email=os.environ["komoot_email"],
     )
     tour = connector.get_tour_by_id(komoot_id)
     tour.vector_map_image.load_image()

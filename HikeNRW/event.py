@@ -12,7 +12,7 @@ from HikeNRW.HikeNRW.create_announcement import get_image, export_banner_image
 
 
 def extract_komoot_url(text):
-    matches = re.findall(r'https?://(?:www\.)?komoot[^\s]*', text)
+    matches = re.findall(r"https?://(?:www\.)?komoot[^\s]*", text)
     if len(matches) == 0:
         raise ValueError("No komoot link found")
     return matches[0]
@@ -29,15 +29,29 @@ def get_description(bahn_message, komoot_message, tag, comment=None):
     )
     if "name" not in train_stations_df or len(train_stations_df["name"]) == 0:
         result["warning"] = "It looks like there is no train station nearby"
-    elif max([similar(nn, bahn_all_data["arr_station"].iloc[-1]) for nn in train_stations_df["name"]]) < 0.7:
+    elif (
+        max(
+            [
+                similar(nn, bahn_all_data["arr_station"].iloc[-1])
+                for nn in train_stations_df["name"]
+            ]
+        )
+        < 0.7
+    ):
         result["warning"] = "It looks like the name of the train station does not match"
     meeting_time = round_time(bahn["starting_time"] - timedelta(minutes=5), 15)
-    r_time = bahn["arrival_time"] - bahn["starting_time"] + komoot["total_duration"] + bahn["arrival_time"] + timedelta(hours=1)
+    r_time = (
+        bahn["arrival_time"]
+        - bahn["starting_time"]
+        + komoot["total_duration"]
+        + bahn["arrival_time"]
+        + timedelta(hours=1)
+    )
     with open("event_description.txt", "r") as f:
         event_description = Template(parse(f.read(), tag))
     gpx_url = upload(
         komoot["tour"].gpx_track.to_xml(),
-        bahn["starting_time"].strftime("%Y%m%d") + "_" + komoot["id"]
+        bahn["starting_time"].strftime("%Y%m%d") + "_" + komoot["id"],
     )
 
     try:
@@ -80,5 +94,7 @@ def parse(content, tag):
     content = re.sub(rf"<Not for (?!{tag}\b)[^>]+>\s*", "", content)
     content = re.sub(f"<For {tag}>\s*", "", content)
     pattern = re.compile(r"<[^>]+>")
-    content = "\n".join([line for line in content.split("\n")if not pattern.search(line)])
+    content = "\n".join(
+        [line for line in content.split("\n") if not pattern.search(line)]
+    )
     return content

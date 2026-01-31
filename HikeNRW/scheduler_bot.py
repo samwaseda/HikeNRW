@@ -32,7 +32,7 @@ def send_message(data_dict, bot, message):
                 data_dict["train"],
                 data_dict["komoot"],
                 tag=tag,
-                comment=data_dict.get("comment", None)
+                comment=data_dict.get("comment", None),
             )
             if "warning" in description:
                 bot.send_message(message.chat.id, description["warning"])
@@ -42,9 +42,7 @@ def send_message(data_dict, bot, message):
             bot.send_message(
                 message.chat.id, "You can use the following text for ChatGPT"
             )
-            bot.send_message(
-                message.chat.id, description["text"]
-            )
+            bot.send_message(message.chat.id, description["text"])
         if "img" in description:
             with open(description["img"], "rb") as photo:
                 bot.send_photo(message.chat.id, photo)
@@ -53,7 +51,7 @@ def send_message(data_dict, bot, message):
                 bot.send_photo(message.chat.id, photo)
 
 
-@bot.message_handler(commands=['start', 'clear'])
+@bot.message_handler(commands=["start", "clear"])
 def send_welcome(message):
     initialize_data_dict()
     bot.reply_to(message, "Ready to receive data")
@@ -64,7 +62,9 @@ def train_handler_german(message):
     initialize_data_dict()
     data_dict[message.chat.id]["train"] = message.text
     bot.send_message(message.chat.id, "Got a train schedule")
-    print("Got a train schedule: ", message.text, " from ", message.from_user.first_name)
+    print(
+        "Got a train schedule: ", message.text, " from ", message.from_user.first_name
+    )
     send_message(data_dict[message.chat.id], bot, message)
 
 
@@ -73,11 +73,13 @@ def train_handler(message):
     initialize_data_dict()
     data_dict[message.chat.id]["train"] = message.text
     bot.send_message(message.chat.id, "Got a train schedule")
-    print("Got a train schedule: ", message.text, " from ", message.from_user.first_name)
+    print(
+        "Got a train schedule: ", message.text, " from ", message.from_user.first_name
+    )
     send_message(data_dict[message.chat.id], bot, message)
 
 
-@bot.message_handler(regexp=r'\b\d{9,11}\b')
+@bot.message_handler(regexp=r"\b\d{9,11}\b")
 def komoot_hander(message):
     initialize_data_dict()
     data_dict[message.chat.id]["komoot"] = message.text

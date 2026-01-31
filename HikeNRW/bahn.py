@@ -20,6 +20,7 @@ def get_date(file_content):
 
 def get_all_data(file_content):
     date = get_date(file_content)
+
     def get_train_station(line):
         station = re.findall(r"\d{1,2}:\d\d (.*?)(?:, platform|$)", line)
         assert len(station) == 1, str(station) + line
@@ -51,7 +52,9 @@ def get_all_data(file_content):
         for k, v in data.items():
             all_data[k].append(v)
 
-    with open(f"../tests/bahn/{sha256(file_content.encode()).hexdigest()}.txt", "w") as f:
+    with open(
+        f"../tests/bahn/{sha256(file_content.encode()).hexdigest()}.txt", "w"
+    ) as f:
         f.write(file_content)
 
     return DataFrame(all_data)
@@ -68,7 +71,9 @@ class Bahn:
             container.append(
                 f"Dep: {row['dep_time'].strftime('%H:%M')} {row['dep_station']} platform {row['dep_platform']} {row['train']}"
             )
-            container.append(f"Arr: {row['arr_time'].strftime('%H:%M')} {row['arr_station']} platform {row['arr_platform']}")
+            container.append(
+                f"Arr: {row['arr_time'].strftime('%H:%M')} {row['arr_station']} platform {row['arr_platform']}"
+            )
         return container
 
     @property
@@ -85,9 +90,13 @@ class Bahn:
 
     def get_schedule(self, html=True):
         if html:
-            return '<ol>' + '\n'.join(['<li>{}</li>'.format(s) for s in self.container]) + '</ol>'
+            return (
+                "<ol>"
+                + "\n".join(["<li>{}</li>".format(s) for s in self.container])
+                + "</ol>"
+            )
         else:
-            return '\n'.join(self.container)
+            return "\n".join(self.container)
 
     def get_results(self):
         return {
@@ -118,22 +127,18 @@ def get_train_stations(lat, lon, radius=200, tag="train"):
     """
 
     # Perform the request
-    response = requests.get(overpass_url, params={'data': overpass_query})
+    response = requests.get(overpass_url, params={"data": overpass_query})
     data = response.json()
 
     # Parse the result
     train_stations = []
-    for element in data['elements']:
-        if 'tags' in element:
-            name = element['tags'].get('name', 'Unnamed')
+    for element in data["elements"]:
+        if "tags" in element:
+            name = element["tags"].get("name", "Unnamed")
             if name == "Unnamed":
                 continue
-            lat = element.get('lat', element.get('center', {}).get('lat'))
-            lon = element.get('lon', element.get('center', {}).get('lon'))
-            train_stations.append({
-                'name': name,
-                'lat': lat,
-                'lon': lon
-            })
+            lat = element.get("lat", element.get("center", {}).get("lat"))
+            lon = element.get("lon", element.get("center", {}).get("lon"))
+            train_stations.append({"name": name, "lat": lat, "lon": lon})
 
     return DataFrame(train_stations)

@@ -10,12 +10,10 @@ class TestBahn(unittest.TestCase):
             with open(filename, "r") as f:
                 file_content = f.read()
             self.assertLess(
-                get_date(file_content),
-                datetime.today() + timedelta(days=365)
+                get_date(file_content), datetime.today() + timedelta(days=365)
             )
             self.assertGreater(
-                get_date(file_content),
-                datetime(year=2024, month=1, day=1)
+                get_date(file_content), datetime(year=2024, month=1, day=1)
             )
 
     def test_get_all_data(self):
@@ -34,5 +32,5 @@ class TestBahn(unittest.TestCase):
             self.assertEqual(len(bahn["train_schedule"].split("\n")), 2 * len(results))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

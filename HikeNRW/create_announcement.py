@@ -50,7 +50,7 @@ def get_komoot_images(komoot_dict):
     html_source = urllib.request.urlopen(
         komoot_dict["links_dict"]["cover_images"]["href"]
     ).read()
-    urls = re.findall("src\":\"(https://[^?\s]+/0)", html_source.decode())
+    urls = re.findall('src":"(https://[^?\s]+/0)', html_source.decode())
     images = [
         get_image_from_url(url)
         for url in urls
@@ -61,9 +61,7 @@ def get_komoot_images(komoot_dict):
 
 def get_most_common_color(map_img):
     colors, counts = np.unique(
-        list(map_img.convert("RGB").getdata()),
-        axis=0,
-        return_counts=True
+        list(map_img.convert("RGB").getdata()), axis=0, return_counts=True
     )
     return tuple(colors[counts.argmax()])
 
@@ -77,34 +75,24 @@ def get_banner_images(map_img, images, buffer=None):
         raise ValueError("No images found")
     if len(images) == 1:
         target_size = (width, height)
-        new_images.append(
-            (resize_and_crop(images[0], target_size), (0, buffer))
-        )
+        new_images.append((resize_and_crop(images[0], target_size), (0, buffer)))
         return new_images
     target_size = (width // 2, height)
-    new_images.append(
-        (resize_and_crop(images[0], target_size), (0, buffer))
-    )
+    new_images.append((resize_and_crop(images[0], target_size), (0, buffer)))
     if len(images) == 2:
         new_images.append(
             (resize_and_crop(images[1], target_size), (width // 2, buffer))
         )
         return new_images
     target_size = (width // 2, height // 2)
-    new_images.append(
-        (resize_and_crop(images[1], target_size), (width // 2, buffer))
-    )
+    new_images.append((resize_and_crop(images[1], target_size), (width // 2, buffer)))
     new_images.append(
         (resize_and_crop(images[2], target_size), (width // 2, height // 2 + buffer))
     )
     return new_images
 
 
-def get_text_size(
-    text,
-    font_size=70,
-    font=PATH_TO_FONTS + 'URWGothic-Demi.otf'
-):
+def get_text_size(text, font_size=70, font=PATH_TO_FONTS + "URWGothic-Demi.otf"):
     my_font = ImageFont.truetype(font, size=font_size)
     size = []
     for t in text.split("\n"):
@@ -124,7 +112,7 @@ def draw_text(
     position,
     most_common_color,
     font_size=70,
-    font=PATH_TO_FONTS + 'URWGothic-Demi.otf'
+    font=PATH_TO_FONTS + "URWGothic-Demi.otf",
 ):
     img_text = ImageDraw.Draw(img)
     myFont = ImageFont.truetype(font, font_size)
@@ -132,7 +120,7 @@ def draw_text(
         (position[0], position[1]),
         text,
         font=myFont,
-        fill=get_opposite_color(most_common_color)
+        fill=get_opposite_color(most_common_color),
     )
 
 
@@ -143,11 +131,9 @@ def write_multiple_lines(
     height,
     most_common_color,
     font_size=70,
-    font=PATH_TO_FONTS + 'URWGothic-Demi.otf'
+    font=PATH_TO_FONTS + "URWGothic-Demi.otf",
 ):
-    buffer = (
-        height - font_size * len(text.split("\n"))
-    ) // (len(text.split("\n")) - 1)
+    buffer = (height - font_size * len(text.split("\n"))) // (len(text.split("\n")) - 1)
     position = list(position)
     for ii, tt in enumerate(text.split("\n")):
         draw_text(
@@ -156,7 +142,7 @@ def write_multiple_lines(
             position,
             font_size=font_size,
             font=font,
-            most_common_color=most_common_color
+            most_common_color=most_common_color,
         )
         position[1] += font_size + buffer
 
@@ -200,16 +186,16 @@ def get_image(komoot_dict, date, meeting_point):
         img,
         position=displacement,
         font_size=font_size,
-        most_common_color=most_common_color
+        most_common_color=most_common_color,
     )
     imgl = ImageDraw.Draw(img)
     imgl.line(
         (
             (img.width // 2, int(1.1 * buffer) + map_img.height),
-            (img.width // 2, int(1.9 * buffer) + map_img.height)
+            (img.width // 2, int(1.9 * buffer) + map_img.height),
         ),
         fill="white",
-        width=5
+        width=5,
     )
     write_multiple_lines(
         date + "\n" + meeting_point,
@@ -217,12 +203,12 @@ def get_image(komoot_dict, date, meeting_point):
         position=(img.width // 2 + 20, int(1.15 * buffer) + map_img.height),
         font_size=50,
         height=0.7 * buffer,
-        most_common_color=most_common_color
+        most_common_color=most_common_color,
     )
     topo = get_topographic_info(
         komoot_dict["distance"],
         komoot_dict["elevation_up"],
-        komoot_dict["elevation_down"]
+        komoot_dict["elevation_down"],
     )
     size = get_text_size(topo, font_size=40)
     write_multiple_lines(
@@ -231,6 +217,6 @@ def get_image(komoot_dict, date, meeting_point):
         position=(img.width // 2 - 50 - size[0], int(1.1 * buffer) + map_img.height),
         font_size=40,
         height=0.8 * buffer,
-        most_common_color=most_common_color
+        most_common_color=most_common_color,
     )
     return img
