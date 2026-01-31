@@ -96,7 +96,7 @@ def show_trips(message):
         end = datetime.strptime(t["dates"]["end"], "%Y-%m-%d")
         if end < datetime.now():
             continue
-        trip_dict[t["name"]] = f"{start.strftime('%b %d')} - {end.strftime('%b %d, %Y')}: {t['name']}"
+        trip_dict[t["name"]] = f"{start.strftime('%b %d')} - {end.strftime('%b %d, %Y')}\n{t['name']}"
     # Show the trips as inline buttons
     markup = InlineKeyboardMarkup()
     for trip_name, trip_info in trip_dict.items():
@@ -115,7 +115,7 @@ def trip_details(call):
     end = datetime.strptime(trip["dates"]["end"], "%Y-%m-%d")
     details = f"*{trip['name']}*\n\n"
     n_nights = (end - start).days
-    details += f"Dates: {start.strftime('%B %d, %Y')} - {end.strftime('%B %d, %Y')} ({n_nights} nights)\n\n"
+    details += f"Dates: {start.strftime('%A, %B %d, %Y')} - {end.strftime('%A, %B %d, %Y')} ({n_nights} nights)\n\n"
     details += f"Destination: {trip['destination']}\n\n"
     if "coordinates" in trip:
         distance = haversine(trip["coordinates"][0], trip["coordinates"][1])
