@@ -39,7 +39,7 @@ def get_all_data(file_content):
 
     all_data = defaultdict(list)
     for chunk in file_content.split("\n\n")[1:-1]:
-        content = chunk.replace(" Gleis ", " platform ").split("\n")
+        content = chunk.replace(" Gleis ", " platform ").replace(" Platform ", " platform ").split("\n")
         data = {
             "dep_station": get_train_station(content[-2]),
             "arr_station": get_train_station(content[-1]),
