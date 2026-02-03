@@ -117,7 +117,9 @@ def show_trips(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def trip_details(call):
-    logger.info(f"User {call.from_user.username} requested details for trip {call.data}.")
+    msg = f"User {call.from_user.username} requested details for trip {call.data}."
+    logger.info(msg)
+    bot.send_message(all_trips["sams_id"], msg, disable_notification=True)
     trip = get_trip_by_name(call.data)
     if trip is None:
         bot.answer_callback_query(call.id, "Trip not found.")
