@@ -13,7 +13,6 @@ We will be back at $meeting_point around $return_time (with considerable uncerta
 Difficulty: $difficulty (according to Komoot)
 GPX-file link: $gpx_file
 Komoot link: $komoot_link
-<For html> Komoot frame: $komoot_frame
 NRW Hiking Group (Facebook group): https://www.facebook.com/groups/colognehiking
 Instagram: https://www.instagram.com/rambledorf/
 <For telegram announcement> How to get a Telegram group link: sign up for the event on Meetup or Facebook and wait for a Telegram group link, or leave a message under this announcement. There's no need to be in the Telegram group to participate in the event.

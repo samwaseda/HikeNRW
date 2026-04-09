@@ -4,26 +4,17 @@ from string import Template
 import re
 
 from HikeNRW.HikeNRW.bahn import get_all_data, Bahn, get_train_stations
-from HikeNRW.HikeNRW.komoot.komoot import get_komoot_dict
-from HikeNRW.HikeNRW.komoot.url_parser import extract_komoot_id
+from HikeNRW.HikeNRW.komoot import get_komoot_dict
 from HikeNRW.HikeNRW.tools import round_time, similar
 from HikeNRW.HikeNRW.upload_gpx import upload
 from HikeNRW.HikeNRW.create_announcement import get_image, export_banner_image
-
-
-def extract_komoot_url(text):
-    matches = re.findall(r"https?://(?:www\.)?komoot[^\s]*", text)
-    if len(matches) == 0:
-        raise ValueError("No komoot link found")
-    return matches[0]
 
 
 def get_description(bahn_message, komoot_message, tag, comment=None):
     result = {}
     bahn_all_data = get_all_data(bahn_message)
     bahn = Bahn(bahn_all_data).get_results()
-    komoot = get_komoot_dict(extract_komoot_id(komoot_message))
-    komoot["url"] = extract_komoot_url(komoot_message)
+    komoot = get_komoot_dict(komoot_message)
     train_stations_df = get_train_stations(
         komoot["tour"].start_point.lat, komoot["tour"].start_point.lon
     )
@@ -83,7 +74,6 @@ def get_description(bahn_message, komoot_message, tag, comment=None):
         difficulty=komoot["difficulty"],
         gpx_file=gpx_url,
         komoot_link=komoot["url"],
-        komoot_frame=komoot["html"],
     )
     if comment is not None:
         result["text"] += comment
