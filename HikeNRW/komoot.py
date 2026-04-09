@@ -41,7 +41,6 @@ def get_komoot_dict(komoot_message):
         "total_duration": timedelta(seconds=tour.total_duration),
         "distance": tour.distance,
         "gpx": tour.gpx_track.to_xml(),
-        "url": f"https://www.komoot.com/de-de/tour/{tour.id}",
         "tour": tour,
         "url": extract_komoot_url(komoot_message),
         "vector_image": tour.vector_map_image.image,
