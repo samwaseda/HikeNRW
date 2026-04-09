@@ -1,7 +1,6 @@
-import os
 from datetime import timedelta
+from pathlib import Path
 from string import Template
-import re
 
 from HikeNRW.HikeNRW.bahn import get_all_data, Bahn, get_train_stations
 from HikeNRW.HikeNRW.komoot import get_komoot_dict
@@ -38,7 +37,7 @@ def get_description(bahn_message, komoot_message, comment=None):
         + bahn["arrival_time"]
         + timedelta(hours=1)
     )
-    with open("event_description.txt", "r") as f:
+    with open(Path(__file__).with_name("event_description.txt"), "r") as f:
         event_description = Template(f.read())
     gpx_url = upload(
         komoot["tour"].gpx_track.to_xml(),
