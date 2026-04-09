@@ -74,7 +74,6 @@ def get_description(bahn_message, komoot_message, tag, comment=None):
         difficulty=komoot["difficulty"],
         gpx_file=gpx_url,
         komoot_link=komoot["url"],
-        komoot_frame=komoot["html"],
     )
     if comment is not None:
         result["text"] += comment

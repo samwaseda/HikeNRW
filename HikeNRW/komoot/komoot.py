@@ -23,12 +23,6 @@ def extract_komoot_url(text):
     return matches[0]
 
 
-def get_html(komoot_id):
-    f_dir = os.path.dirname(__file__)
-    with open(os.path.join(f_dir, "html.template"), "r") as f:
-        return f.readline().replace("TOURID", str(komoot_id))
-
-
 def get_komoot_dict(komoot_message):
     komoot_id = extract_komoot_id(komoot_message)
     connector = KomootConnector(
@@ -48,7 +42,6 @@ def get_komoot_dict(komoot_message):
         "distance": tour.distance,
         "gpx": tour.gpx_track.to_xml(),
         "url": f"https://www.komoot.com/de-de/tour/{tour.id}",
-        "html": get_html(tour.id),
         "tour": tour,
         "url": extract_komoot_url(komoot_message),
         "vector_image": tour.vector_map_image.image,
