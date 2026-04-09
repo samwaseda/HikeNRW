@@ -1,6 +1,4 @@
 import subprocess
-import os
-import tempfile
 
 
 def upload(file_content, file_name):

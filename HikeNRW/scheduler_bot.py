@@ -26,23 +26,21 @@ def send_message(data_dict, bot, message):
         with open("bot.log", "a") as f:
             f.write("Train schedule:\n" + data_dict["train"] + "\n")
             f.write("Komoot:\n" + data_dict["komoot"] + "\n")
-        for tag in ["telegram announcement"]:
-            bot.send_message(message.chat.id, f"Creating text for {tag}")
-            description = get_description(
-                data_dict["train"],
-                data_dict["komoot"],
-                tag=tag,
-                comment=data_dict.get("comment", None),
-            )
-            if "warning" in description:
-                bot.send_message(message.chat.id, description["warning"])
-            with open("bot.log", "a") as f:
-                f.write("Input:\n" + description["text"] + "\n")
-            print(description["text"])
-            bot.send_message(
-                message.chat.id, "You can use the following text for ChatGPT"
-            )
-            bot.send_message(message.chat.id, description["text"])
+        bot.send_message(message.chat.id, "Creating text")
+        description = get_description(
+            data_dict["train"],
+            data_dict["komoot"],
+            comment=data_dict.get("comment", None),
+        )
+        if "warning" in description:
+            bot.send_message(message.chat.id, description["warning"])
+        with open("bot.log", "a") as f:
+            f.write("Input:\n" + description["text"] + "\n")
+        print(description["text"])
+        bot.send_message(
+            message.chat.id, "You can use the following text for ChatGPT"
+        )
+        bot.send_message(message.chat.id, description["text"])
         if "img" in description:
             with open(description["img"], "rb") as photo:
                 bot.send_photo(message.chat.id, photo)

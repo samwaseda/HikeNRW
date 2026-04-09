@@ -2,8 +2,6 @@ import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from collections import defaultdict
 from datetime import datetime, timedelta
-from openai import OpenAI
-import os
 from chatbot import get_message
 
 with open("FEEDBACK_BOT_API", "r") as f:

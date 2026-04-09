@@ -1,9 +1,8 @@
-<For html> Note: I would like to have it in html
-Write a casual hiking event announcement (Do not change the format of the train schedule) for the following event ${tag}
+Write a casual hiking event announcement (Do not change the format of the train schedule) for the following event. Do not use the Markdown syntax but feel free to use a lot of emojis
 
 Title: $title (needless to put it explicitly in the text)
 Date: $date
-We see each other at $meeting_time at $meeting_point but everyone is free to join wherever they want
+We see each other at $meeting_time at $meeting_point or somewhere along the way
 Train schedule:
 $train_schedule
 Total distance: $total_distance km
@@ -13,9 +12,7 @@ We will be back at $meeting_point around $return_time (with considerable uncerta
 Difficulty: $difficulty (according to Komoot)
 GPX-file link: $gpx_file
 Komoot link: $komoot_link
-NRW Hiking Group (Facebook group): https://www.facebook.com/groups/colognehiking
 Instagram: https://www.instagram.com/rambledorf/
-<For telegram announcement> How to get a Telegram group link: sign up for the event on Meetup or Facebook and wait for a Telegram group link, or leave a message under this announcement. There's no need to be in the Telegram group to participate in the event.
+How to get a Telegram group link: sign up for the event on Meetup and wait for a Telegram group link, or leave a message under this announcement. There's no need to be in the Telegram group to participate in the event.
 Telegram channel link: https://t.me/hikenrw
-<For telegram group> No need to leave a comment in the Telegram group for pulling out of the event.
 Regardless of the weather, the event will NOT be cancelled.

@@ -1,7 +1,6 @@
-import os
 from datetime import timedelta
+from pathlib import Path
 from string import Template
-import re
 
 from HikeNRW.HikeNRW.bahn import get_all_data, Bahn, get_train_stations
 from HikeNRW.HikeNRW.komoot import get_komoot_dict
@@ -10,7 +9,7 @@ from HikeNRW.HikeNRW.upload_gpx import upload
 from HikeNRW.HikeNRW.create_announcement import get_image, export_banner_image
 
 
-def get_description(bahn_message, komoot_message, tag, comment=None):
+def get_description(bahn_message, komoot_message, comment=None):
     result = {}
     bahn_all_data = get_all_data(bahn_message)
     bahn = Bahn(bahn_all_data).get_results()
@@ -38,8 +37,8 @@ def get_description(bahn_message, komoot_message, tag, comment=None):
         + bahn["arrival_time"]
         + timedelta(hours=1)
     )
-    with open("event_description.txt", "r") as f:
-        event_description = Template(parse(f.read(), tag))
+    with open(Path(__file__).with_name("event_description.txt"), "r") as f:
+        event_description = Template(f.read())
     gpx_url = upload(
         komoot["tour"].gpx_track.to_xml(),
         bahn["starting_time"].strftime("%Y%m%d") + "_" + komoot["id"],
@@ -56,11 +55,10 @@ def get_description(bahn_message, komoot_message, tag, comment=None):
         banner_url = f"INSTAGRAM/banner_{komoot['id']}.jpg"
         export_banner_image(komoot_dict=komoot).save(banner_url)
         result["banner"] = banner_url
-    except Exception as e:
+    except Exception:
         pass
 
     result["text"] = event_description.substitute(
-        tag=f"for {tag}",
         title=komoot["name"],
         date=bahn["starting_time"].strftime("%h %d %Y %A"),
         meeting_time=meeting_time.strftime("%H:%M"),
@@ -78,13 +76,3 @@ def get_description(bahn_message, komoot_message, tag, comment=None):
     if comment is not None:
         result["text"] += comment
     return result
-
-
-def parse(content, tag):
-    content = re.sub(rf"<Not for (?!{tag}\b)[^>]+>\s*", "", content)
-    content = re.sub(f"<For {tag}>\s*", "", content)
-    pattern = re.compile(r"<[^>]+>")
-    content = "\n".join(
-        [line for line in content.split("\n") if not pattern.search(line)]
-    )
-    return content
