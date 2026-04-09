@@ -1,11 +1,10 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from collections import defaultdict
 import re
 from pandas import DataFrame
 import requests
 from hashlib import sha256
 
-from HikeNRW.HikeNRW.tools import round_time
 
 
 def get_date(file_content):

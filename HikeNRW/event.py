@@ -55,7 +55,7 @@ def get_description(bahn_message, komoot_message, comment=None):
         banner_url = f"INSTAGRAM/banner_{komoot['id']}.jpg"
         export_banner_image(komoot_dict=komoot).save(banner_url)
         result["banner"] = banner_url
-    except Exception as e:
+    except Exception:
         pass
 
     result["text"] = event_description.substitute(
