@@ -4,7 +4,7 @@ from string import Template
 import re
 
 from HikeNRW.HikeNRW.bahn import get_all_data, Bahn, get_train_stations
-from HikeNRW.HikeNRW.komoot.komoot import get_komoot_dict
+from HikeNRW.HikeNRW.komoot import get_komoot_dict
 from HikeNRW.HikeNRW.tools import round_time, similar
 from HikeNRW.HikeNRW.upload_gpx import upload
 from HikeNRW.HikeNRW.create_announcement import get_image, export_banner_image
