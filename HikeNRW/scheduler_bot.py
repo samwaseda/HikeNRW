@@ -26,7 +26,7 @@ def send_message(data_dict, bot, message):
         with open("bot.log", "a") as f:
             f.write("Train schedule:\n" + data_dict["train"] + "\n")
             f.write("Komoot:\n" + data_dict["komoot"] + "\n")
-        bot.send_message(message.chat.id, f"Creating text")
+        bot.send_message(message.chat.id, "Creating text")
         description = get_description(
             data_dict["train"],
             data_dict["komoot"],
