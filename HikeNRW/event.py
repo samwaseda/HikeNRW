@@ -14,21 +14,24 @@ def get_description(bahn_message, komoot_message, comment=None):
     bahn_all_data = get_all_data(bahn_message)
     bahn = Bahn(bahn_all_data).get_results()
     komoot = get_komoot_dict(komoot_message)
-    train_stations_df = get_train_stations(
-        komoot["tour"].start_point.lat, komoot["tour"].start_point.lon
-    )
-    if "name" not in train_stations_df or len(train_stations_df["name"]) == 0:
-        result["warning"] = "It looks like there is no train station nearby"
-    elif (
-        max(
-            [
-                similar(nn, bahn_all_data["arr_station"].iloc[-1])
-                for nn in train_stations_df["name"]
-            ]
+    try:
+        train_stations_df = get_train_stations(
+            komoot["tour"].start_point.lat, komoot["tour"].start_point.lon
         )
-        < 0.7
-    ):
-        result["warning"] = "It looks like the name of the train station does not match"
+        if "name" not in train_stations_df or len(train_stations_df["name"]) == 0:
+            result["warning"] = "It looks like there is no train station nearby"
+        elif (
+            max(
+                [
+                    similar(nn, bahn_all_data["arr_station"].iloc[-1])
+                    for nn in train_stations_df["name"]
+                ]
+            )
+            < 0.7
+        ):
+            result["warning"] = "It looks like the name of the train station does not match"
+    except:
+        result["warning"] = "Failed to check train station, maybe there is no station nearby"
     meeting_time = round_time(bahn["starting_time"] - timedelta(minutes=5), 15)
     r_time = (
         bahn["arrival_time"]
@@ -55,7 +58,8 @@ def get_description(bahn_message, komoot_message, comment=None):
         banner_url = f"INSTAGRAM/banner_{komoot['id']}.jpg"
         export_banner_image(komoot_dict=komoot).save(banner_url)
         result["banner"] = banner_url
-    except Exception:
+    except Exception as e:
+        print("Could not create image:", e)
         pass
 
     result["text"] = event_description.substitute(
