@@ -33,12 +33,16 @@ def get_description(bahn_message, komoot_message, comment=None):
     except:
         result["warning"] = "Failed to check train station, maybe there is no station nearby"
     meeting_time = round_time(bahn["starting_time"] - timedelta(minutes=5), 15)
+    if komoot["total_duration"] > timedelta(hours=4):
+        buffer_time = timedelta(hours=1)
+    else:
+        buffer_time = timedelta(minutes=15)
     r_time = (
         bahn["arrival_time"]
         - bahn["starting_time"]
         + komoot["total_duration"]
         + bahn["arrival_time"]
-        + timedelta(hours=1)
+        + buffer_time
     )
     with open(Path(__file__).with_name("event_description.txt"), "r") as f:
         event_description = Template(f.read())
