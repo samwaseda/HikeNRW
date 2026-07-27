@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="https://www.komoot.de">
   <metadata>
-    <name>Kettwiger Panoramasteig</name>
+    <name>Kettwiger Panoramasteig (Half)</name>
     <author>
       <link href="https://www.komoot.de">
         <text>komoot</text>
@@ -22,7 +22,7 @@
     <sym>Flag, Blue</sym>
   </wpt>
   <trk>
-    <name>Kettwiger Panoramasteig</name>
+    <name>Kettwiger Panoramasteig (Half)</name>
     <type>hike</type>
     <trkseg>
       <trkpt lat="51.363667" lon="6.953517">
