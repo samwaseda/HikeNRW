@@ -1,65 +1,103 @@
-from datetime import datetime
-from collections import defaultdict
 import re
-from pandas import DataFrame
-import requests
-from hashlib import sha256
+from collections import defaultdict
+from datetime import datetime, timedelta
 
+import requests
+from pandas import DataFrame
+
+_DATE_RE = re.compile(r"\b\d{1,2}\.\d{1,2}\.\d{4}\b")
+_DEPARTURE_RE = re.compile(r"^(?:From|Ab)\s+(\d{1,2}:\d{2})\s+(.+)$", re.IGNORECASE)
+_ARRIVAL_RE = re.compile(r"^(?:To|An)\s+(\d{1,2}:\d{2})\s+(.+)$", re.IGNORECASE)
+_PLATFORM_RE = re.compile(r",?\s*(?:platform|gleis)\s+(.+)$", re.IGNORECASE)
+_TRAIN_RE = re.compile(
+    r"^(?:(?:VIA|RRB)\s+)?"
+    r"(?:ICE|IC|EC|RE|RB|S|U|STR|Bus|Tram)\s*[\w-]+"
+    r"(?:\s*\([^)]*\))?"
+    r"(?:\s*/\s*(?:(?:VIA|RRB)\s+)?(?:ICE|IC|EC|RE|RB|S|U|STR|Bus|Tram)\s*[\w-]+"
+    r"(?:\s*\([^)]*\))?)*$",
+    re.IGNORECASE,
+)
 
 
 def get_date(file_content):
-    content = re.findall("\d\d\.\d\d\.\d{4}", file_content)
-    assert len(content) == 1, f"Date not identified {file_content}"
-    try:
-        return datetime.strptime(content[0], "%d.%m.%Y")
-    except ValueError as e:
-        print(e.args)
-        pass
+    dates = _DATE_RE.findall(file_content)
+    if len(dates) != 1:
+        raise ValueError(f"Expected one journey date, found {len(dates)}")
+    return datetime.strptime(dates[0], "%d.%m.%Y")
+
+
+def _parse_stop(line, pattern, journey_date, previous_time):
+    match = pattern.match(line.strip())
+    if not match:
+        raise ValueError(f"Could not parse stop: {line!r}")
+
+    time_text, station_text = match.groups()
+    platform_match = _PLATFORM_RE.search(station_text)
+    platform = platform_match.group(1).strip() if platform_match else "unknown"
+    station = (
+        station_text[: platform_match.start()].rstrip(" ,")
+        if platform_match
+        else station_text.strip()
+    )
+    if not station:
+        raise ValueError(f"Stop has no station name: {line!r}")
+
+    parsed_time = datetime.strptime(
+        f"{journey_date:%Y-%m-%d} {time_text}", "%Y-%m-%d %H:%M"
+    )
+    while previous_time is not None and parsed_time < previous_time:
+        parsed_time += timedelta(days=1)
+    return station, platform, parsed_time
 
 
 def get_all_data(file_content):
-    date = get_date(file_content)
-
-    def get_train_station(line):
-        station = re.findall(r"\d{1,2}:\d\d (.*?)(?:, platform|$)", line)
-        assert len(station) == 1, str(station) + line
-        return station[0]
-
-    def get_platform(line):
-        pf = re.findall("platform\s*(.*)", line)
-        if len(pf) == 0:
-            return "unknown"
-        assert len(pf) == 1
-        return pf[0]
-
-    def get_time(line, day=date):
-        t = re.findall("(\d{1,2}:\d\d)", line)
-        return datetime.strptime(day.strftime(f"%Y/%m/%d {t[0]}"), "%Y/%m/%d %H:%M")
-
+    journey_date = get_date(file_content)
     all_data = defaultdict(list)
-    for chunk in file_content.split("\n\n")[1:-1]:
-        content = (
-            chunk.replace(" Gleis ", " platform ")
-            .replace(" Platform ", " platform ")
-            .split("\n")
-        )
-        data = {
-            "dep_station": get_train_station(content[-2]),
-            "arr_station": get_train_station(content[-1]),
-            "dep_platform": get_platform(content[-2]),
-            "arr_platform": get_platform(content[-1]),
-            "train": content[0],
-            "dep_time": get_time(content[-2]),
-            "arr_time": get_time(content[-1]),
-        }
-        for k, v in data.items():
-            all_data[k].append(v)
+    current_train = None
+    departure = None
+    previous_time = None
 
-    with open(
-        f"../tests/bahn/{sha256(file_content.encode()).hexdigest()}.txt", "w"
-    ) as f:
-        f.write(file_content)
+    for line in file_content.splitlines():
+        line = line.strip()
+        if not line:
+            continue
 
+        if _TRAIN_RE.fullmatch(line):
+            current_train = line
+            continue
+
+        if _DEPARTURE_RE.match(line):
+            if departure is not None:
+                raise ValueError(f"Departure has no matching arrival: {departure[0]!r}")
+            station, platform, timestamp = _parse_stop(
+                line, _DEPARTURE_RE, journey_date, previous_time
+            )
+            departure = (line, station, platform, timestamp, current_train)
+            previous_time = timestamp
+            continue
+
+        if _ARRIVAL_RE.match(line):
+            if departure is None:
+                continue
+            station, platform, timestamp = _parse_stop(
+                line, _ARRIVAL_RE, journey_date, previous_time
+            )
+            if timestamp == departure[3]:
+                raise ValueError(f"Arrival must be after departure: {line!r}")
+            all_data["dep_station"].append(departure[1])
+            all_data["dep_platform"].append(departure[2])
+            all_data["dep_time"].append(departure[3])
+            all_data["train"].append(departure[4] or "unknown")
+            all_data["arr_station"].append(station)
+            all_data["arr_platform"].append(platform)
+            all_data["arr_time"].append(timestamp)
+            previous_time = timestamp
+            departure = None
+
+    if departure is not None:
+        raise ValueError(f"Departure has no matching arrival: {departure[0]!r}")
+    if not all_data["dep_time"]:
+        raise ValueError("No complete journey segments found")
     return DataFrame(all_data)
 
 
@@ -95,7 +133,7 @@ class Bahn:
         if html:
             return (
                 "<ol>"
-                + "\n".join(["<li>{}</li>".format(s) for s in self.container])
+                + "\n".join([f"<li>{s}</li>" for s in self.container])
                 + "</ol>"
             )
         else:
